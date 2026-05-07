@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CasesIdRouteImport } from './routes/cases.$id'
 
@@ -30,6 +31,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const CasesIdRoute = CasesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
@@ -65,14 +74,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/library'
+    | '/login'
+    | '/simulator'
+    | '/cases/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
-  id: '__root__' | '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
+  to: '/' | '/dashboard' | '/library' | '/login' | '/simulator' | '/cases/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/library'
+    | '/login'
+    | '/simulator'
+    | '/cases/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   SimulatorRoute: typeof SimulatorRoute
@@ -102,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,6 +151,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   SimulatorRoute: SimulatorRoute,
