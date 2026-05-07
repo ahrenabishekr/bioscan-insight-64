@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimulatorRouteImport } from './routes/simulator'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CasesIdRouteImport } from './routes/cases.$id'
@@ -17,6 +18,11 @@ import { Route as CasesIdRouteImport } from './routes/cases.$id'
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -38,12 +44,14 @@ const CasesIdRoute = CasesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/simulator' | '/cases/$id'
+  fullPaths: '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/simulator' | '/cases/$id'
-  id: '__root__' | '/' | '/library' | '/simulator' | '/cases/$id'
+  to: '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
+  id: '__root__' | '/' | '/library' | '/login' | '/simulator' | '/cases/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryRoute: typeof LibraryRoute
+  LoginRoute: typeof LoginRoute
   SimulatorRoute: typeof SimulatorRoute
   CasesIdRoute: typeof CasesIdRoute
 }
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/simulator'
       fullPath: '/simulator'
       preLoaderRoute: typeof SimulatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -105,9 +122,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryRoute: LibraryRoute,
+  LoginRoute: LoginRoute,
   SimulatorRoute: SimulatorRoute,
   CasesIdRoute: CasesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
