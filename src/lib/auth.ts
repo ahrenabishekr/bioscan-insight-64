@@ -2,6 +2,10 @@ export interface SessionUser {
   email: string;
   name: string;
   role: "Doctor" | "Lab Technician" | "Student";
+  staffId?: string;
+  department?: string;
+  hospital?: string;
+  phone?: string;
 }
 
 const KEY = "chemosense.session";

@@ -1,8 +1,9 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, ScanLine, BookOpen, Cpu, Activity, GitCompare, Inbox, LogOut } from "lucide-react";
+import { LayoutDashboard, ScanLine, BookOpen, Cpu, Activity, GitCompare, Inbox, LogOut, Settings, Sun, Moon } from "lucide-react";
 import { getSession, clearSession } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
+import { applyTheme, getTheme, type Theme } from "@/lib/theme";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -18,14 +19,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const navigate = useNavigate();
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
     const s = getSession();
     if (!s) navigate({ to: "/login" });
     setUser(s);
+    const t = getTheme();
+    setTheme(t);
+    applyTheme(t);
   }, [navigate]);
 
   if (!user) return null;
+
+  function toggleTheme() {
+    const t: Theme = theme === "light" ? "dark" : "light";
+    setTheme(t);
+    applyTheme(t);
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -60,14 +71,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="border-t border-border p-4">
-          <div className="text-xs font-medium">{user.name}</div>
-          <div className="text-[11px] text-muted-foreground">{user.role}</div>
+          <Link to="/settings" className="block hover:opacity-80">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded-full gradient-primary text-primary-foreground grid place-items-center text-[11px] font-semibold">
+                {user.name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-medium truncate">{user.name}</div>
+                <div className="text-[10px] text-muted-foreground truncate">{user.role}{user.department ? ` · ${user.department}` : ""}</div>
+              </div>
+            </div>
+          </Link>
+          <div className="mt-3 flex items-center gap-1">
+            <Link to="/settings" className="flex-1 h-7 px-2 text-[11px] inline-flex items-center gap-1 text-muted-foreground hover:text-foreground rounded border border-border">
+              <Settings className="size-3" /> Settings
+            </Link>
+            <button onClick={toggleTheme} title="Toggle theme" className="size-7 grid place-items-center text-muted-foreground hover:text-foreground rounded border border-border">
+              {theme === "dark" ? <Sun className="size-3" /> : <Moon className="size-3" />}
+            </button>
+          </div>
           <button
             onClick={() => {
               clearSession();
               navigate({ to: "/login" });
             }}
-            className="mt-2 text-xs flex items-center gap-1.5 text-muted-foreground hover:text-destructive"
+            className="mt-2 text-[11px] flex items-center gap-1.5 text-muted-foreground hover:text-destructive"
           >
             <LogOut className="size-3" /> Sign out
           </button>
@@ -81,7 +109,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="size-6 rounded-md bg-primary grid place-items-center text-primary-foreground font-mono text-[10px] font-bold">CS</div>
             <span className="font-semibold text-sm">ChemoSense</span>
           </div>
-          <span className="text-[11px] text-muted-foreground">{user.role}</span>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleTheme} className="size-7 grid place-items-center text-muted-foreground">
+              {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </button>
+            <Link to="/settings" className="size-7 grid place-items-center text-muted-foreground"><Settings className="size-4" /></Link>
+          </div>
         </header>
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
         {/* Bottom tabs (mobile) */}

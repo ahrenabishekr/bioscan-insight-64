@@ -10,15 +10,36 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimulatorRouteImport } from './routes/simulator'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SensorsRouteImport } from './routes/sensors'
+import { Route as ScanRouteImport } from './routes/scan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CasesIndexRouteImport } from './routes/cases.index'
+import { Route as LibraryIdRouteImport } from './routes/library.$id'
 import { Route as CasesIdRouteImport } from './routes/cases.$id'
 
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SensorsRoute = SensorsRouteImport.update({
+  id: '/sensors',
+  path: '/sensors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -36,10 +57,25 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CasesIndexRoute = CasesIndexRouteImport.update({
+  id: '/cases/',
+  path: '/cases/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryIdRoute = LibraryIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => LibraryRoute,
 } as any)
 const CasesIdRoute = CasesIdRouteImport.update({
   id: '/cases/$id',
@@ -49,57 +85,104 @@ const CasesIdRoute = CasesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
   '/login': typeof LoginRoute
+  '/scan': typeof ScanRoute
+  '/sensors': typeof SensorsRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
+  '/library/$id': typeof LibraryIdRoute
+  '/cases/': typeof CasesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
   '/login': typeof LoginRoute
+  '/scan': typeof ScanRoute
+  '/sensors': typeof SensorsRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
+  '/library/$id': typeof LibraryIdRoute
+  '/cases': typeof CasesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
   '/login': typeof LoginRoute
+  '/scan': typeof ScanRoute
+  '/sensors': typeof SensorsRoute
+  '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/cases/$id': typeof CasesIdRoute
+  '/library/$id': typeof LibraryIdRoute
+  '/cases/': typeof CasesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/compare'
     | '/dashboard'
     | '/library'
     | '/login'
+    | '/scan'
+    | '/sensors'
+    | '/settings'
     | '/simulator'
     | '/cases/$id'
+    | '/library/$id'
+    | '/cases/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/library' | '/login' | '/simulator' | '/cases/$id'
+  to:
+    | '/'
+    | '/compare'
+    | '/dashboard'
+    | '/library'
+    | '/login'
+    | '/scan'
+    | '/sensors'
+    | '/settings'
+    | '/simulator'
+    | '/cases/$id'
+    | '/library/$id'
+    | '/cases'
   id:
     | '__root__'
     | '/'
+    | '/compare'
     | '/dashboard'
     | '/library'
     | '/login'
+    | '/scan'
+    | '/sensors'
+    | '/settings'
     | '/simulator'
     | '/cases/$id'
+    | '/library/$id'
+    | '/cases/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompareRoute: typeof CompareRoute
   DashboardRoute: typeof DashboardRoute
-  LibraryRoute: typeof LibraryRoute
+  LibraryRoute: typeof LibraryRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ScanRoute: typeof ScanRoute
+  SensorsRoute: typeof SensorsRoute
+  SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   CasesIdRoute: typeof CasesIdRoute
+  CasesIndexRoute: typeof CasesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,6 +192,27 @@ declare module '@tanstack/react-router' {
       path: '/simulator'
       fullPath: '/simulator'
       preLoaderRoute: typeof SimulatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sensors': {
+      id: '/sensors'
+      path: '/sensors'
+      fullPath: '/sensors'
+      preLoaderRoute: typeof SensorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -132,12 +236,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/cases/': {
+      id: '/cases/'
+      path: '/cases'
+      fullPath: '/cases/'
+      preLoaderRoute: typeof CasesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/$id': {
+      id: '/library/$id'
+      path: '/$id'
+      fullPath: '/library/$id'
+      preLoaderRoute: typeof LibraryIdRouteImport
+      parentRoute: typeof LibraryRoute
     }
     '/cases/$id': {
       id: '/cases/$id'
@@ -149,13 +274,29 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LibraryRouteChildren {
+  LibraryIdRoute: typeof LibraryIdRoute
+}
+
+const LibraryRouteChildren: LibraryRouteChildren = {
+  LibraryIdRoute: LibraryIdRoute,
+}
+
+const LibraryRouteWithChildren =
+  LibraryRoute._addFileChildren(LibraryRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
-  LibraryRoute: LibraryRoute,
+  LibraryRoute: LibraryRouteWithChildren,
   LoginRoute: LoginRoute,
+  ScanRoute: ScanRoute,
+  SensorsRoute: SensorsRoute,
+  SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   CasesIdRoute: CasesIdRoute,
+  CasesIndexRoute: CasesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
