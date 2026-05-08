@@ -27,12 +27,15 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
-      <div className="hidden md:flex flex-col justify-between p-10 bg-primary text-primary-foreground">
+      <div className="hidden md:flex flex-col justify-between p-10 gradient-primary text-primary-foreground relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,.15), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,.1), transparent 50%)" }} />
+        <div className="relative">
         <div className="flex items-center gap-2">
           <div className="size-8 rounded-md bg-primary-foreground/15 grid place-items-center font-mono font-bold">CS</div>
           <span className="font-semibold">ChemoSense</span>
         </div>
-        <div>
+        </div>
+        <div className="relative">
           <h2 className="text-3xl font-semibold leading-tight max-w-sm">
             Selective chemosensors for rapid pathogen detection.
           </h2>
@@ -40,12 +43,12 @@ function LoginPage() {
             Identify bacterial metabolites, toxins, and quorum-sensing molecules in minutes — not days.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4 text-xs">
-            <Stat n="5" l="Pathogens" />
+            <Stat n="8" l="Pathogens" />
             <Stat n="5" l="Sensor platforms" />
             <Stat n="<15m" l="Detection" />
           </div>
         </div>
-        <div className="text-[11px] opacity-60">For clinical decision support. Not a replacement for culture.</div>
+        <div className="text-[11px] opacity-70 relative">For clinical decision support. Not a replacement for culture.</div>
       </div>
 
       <div className="flex items-center justify-center p-6">
