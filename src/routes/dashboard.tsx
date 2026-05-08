@@ -32,7 +32,7 @@ function DashboardPage() {
           <div className="mt-6">
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">5 most common pathogens</h3>
             <div className="mt-3 grid sm:grid-cols-2 gap-2">
-              {pathogens.map((p) => (
+              {pathogens.slice(0, 6).map((p) => (
                 <Link key={p.id} to="/library/$id" params={{ id: p.id }} className="flex items-center justify-between p-3 border border-border rounded-md hover:border-primary transition-colors">
                   <div>
                     <div className="text-sm font-medium italic">{p.shortName}</div>
