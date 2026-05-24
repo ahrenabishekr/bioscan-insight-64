@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
-import { useState } from "react";
-import { matchSymptoms, matchByBiomarker, allBiomarkerNames, type MatchResult } from "@/lib/match";
+import { useState, useEffect } from "react";
 import { buildCase, saveCase } from "@/lib/cases";
 import { getSession } from "@/lib/auth";
 import { ScanLine, Loader2, FlaskConical } from "lucide-react";
+
+const API_URL = "https://chemosense-backend-production.up.railway.app/api";
 
 export const Route = createFileRoute("/scan")({
   component: () => <AppShell><Page /></AppShell>,
@@ -17,21 +18,51 @@ function Page() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"symptom" | "biomarker">("symptom");
   const [text, setText] = useState(q0 ?? "");
-  const [bio, setBio] = useState<string>(allBiomarkerNames()[0]);
+  const [bio, setBio] = useState<string>("");
+  const [biomarkers, setBiomarkers] = useState<string[]>([]);
   const [scanning, setScanning] = useState(false);
-  const [results, setResults] = useState<MatchResult[]>([]);
+  const [results, setResults] = useState<any[]>([]);
+  const [error, setError] = useState("");
 
-  function runScan() {
+  useEffect(() => {
+    fetch(`${API_URL}/scan/biomarkers`)
+      .then((r) => r.json())
+      .then((data) => {
+        setBiomarkers(data);
+        if (data.length > 0) setBio(data[0]);
+      })
+      .catch(() => setBiomarkers([]));
+  }, []);
+
+  async function runScan() {
     setScanning(true);
     setResults([]);
-    setTimeout(() => {
-      const r = mode === "symptom" ? matchSymptoms(text) : matchByBiomarker(bio);
-      setResults(r);
+    setError("");
+    try {
+      let res;
+      if (mode === "symptom") {
+        res = await fetch(`${API_URL}/scan/symptoms`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+      } else {
+        res = await fetch(`${API_URL}/scan/biomarker`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ biomarker: bio }),
+        });
+      }
+      const data = await res.json();
+      setResults(data);
+    } catch (err) {
+      setError("Scan failed. Check your connection.");
+    } finally {
       setScanning(false);
-    }, 900);
+    }
   }
 
-  function persist(r: MatchResult) {
+  function persist(r: any) {
     const u = getSession();
     const c = buildCase({
       doctor: u?.name ?? "Unknown",
@@ -70,10 +101,13 @@ function Page() {
               <label className="text-xs font-medium">Detected biomarker</label>
               <select value={bio} onChange={(e) => setBio(e.target.value)}
                 className="mt-1 w-full h-10 px-3 text-sm border border-input rounded-md bg-background">
-                {allBiomarkerNames().map((n) => <option key={n} value={n}>{n}</option>)}
+                {biomarkers.map((n) => <option key={n} value={n}>{n}</option>)}
               </select>
             </>
           )}
+
+          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+
           <button onClick={runScan} disabled={scanning || (mode === "symptom" && !text.trim())}
             className="mt-4 h-10 px-4 rounded-md gradient-primary text-primary-foreground text-sm font-medium inline-flex items-center gap-2 disabled:opacity-50 shadow-elegant">
             {scanning ? <><Loader2 className="size-4 animate-spin" /> Scanning…</> : <><ScanLine className="size-4" /> Run scan</>}
@@ -82,33 +116,49 @@ function Page() {
 
         {results.length > 0 && (
           <div className="mt-6">
-            <h2 className="text-sm font-semibold mb-3 flex items-center gap-2"><FlaskConical className="size-4 text-primary" /> Results</h2>
+            <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <FlaskConical className="size-4 text-primary" /> Results ({results.length} pathogen{results.length > 1 ? "s" : ""} matched)
+            </h2>
             <div className="space-y-3">
               {results.map((r) => (
-                <div key={r.pathogen.id} className="clinical-card p-4 flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-semibold italic">{r.pathogen.name}</span>
-                      <RiskPill level={r.pathogen.riskLevel} />
+                <div key={r.pathogen.id} className="clinical-card p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-semibold italic">{r.pathogen.name}</span>
+                        <RiskPill level={r.pathogen.riskLevel} />
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Match score: <span className="font-mono font-bold">{r.score}</span>
+                        {r.matched.length > 0 && <> · keywords: <span className="text-primary">{r.matched.join(", ")}</span></>}
+                      </div>
+                      <div className="text-xs mt-2">
+                        Recommended biomarker: <strong>{r.topBiomarker.name}</strong> · LOD {r.topBiomarker.lod} · {r.topBiomarker.detectionTime}
+                      </div>
+                      <div className="text-xs mt-1 text-muted-foreground">
+                        {r.pathogen.summary}
+                      </div>
+                      <div className="mt-2">
+                        <p className="text-xs font-medium">Treatment:</p>
+                        <ul className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                          {r.pathogen.empiricalTreatment?.map((t: string, i: number) => (
+                            <li key={i}>• {t}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Match score: <span className="font-mono">{r.score}</span>
-                      {r.matched.length > 0 && <> · keywords: {r.matched.join(", ")}</>}
-                    </div>
-                    <div className="text-xs mt-2">
-                      Recommended biomarker: <strong>{r.topBiomarker.name}</strong> · LOD {r.topBiomarker.lod} · {r.topBiomarker.detectionTime}
-                    </div>
+                    <button onClick={() => persist(r)}
+                      className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground font-medium whitespace-nowrap">
+                      Generate report
+                    </button>
                   </div>
-                  <button onClick={() => persist(r)} className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground font-medium whitespace-nowrap">
-                    Generate report
-                  </button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {!scanning && results.length === 0 && (text.trim() || mode === "biomarker") === false && (
+        {!scanning && results.length === 0 && !text.trim() && mode === "symptom" && (
           <p className="mt-4 text-xs text-muted-foreground">Enter a clinical picture above, then run scan.</p>
         )}
       </div>

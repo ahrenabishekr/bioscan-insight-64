@@ -1,3 +1,5 @@
+const API_URL = "http://localhost:3001/api";
+
 export interface SessionUser {
   email: string;
   name: string;
@@ -25,4 +27,57 @@ export function setSession(u: SessionUser) {
 
 export function clearSession() {
   localStorage.removeItem(KEY);
+}
+
+// ─── BACKEND AUTH ──────────────────────────────────────────
+
+export async function loginWithBackend(
+  email: string,
+  password: string,
+  name: string,
+  role: SessionUser["role"]
+): Promise<SessionUser> {
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      // User exists in DB — use their data
+      const data = await res.json();
+      const user: SessionUser = {
+        email: data.email,
+        name: data.name,
+        role: role,
+      };
+      setSession(user);
+      return user;
+    } else {
+      // Not in DB — register them automatically
+      await registerUser(email, password, name, role);
+      const user: SessionUser = { email, name, role };
+      setSession(user);
+      return user;
+    }
+  } catch {
+    // Backend offline — fallback to local session
+    const user: SessionUser = { email, name, role };
+    setSession(user);
+    return user;
+  }
+}
+
+export async function registerUser(
+  email: string,
+  password: string,
+  name: string,
+  role: SessionUser["role"]
+) {
+  await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, name, role }),
+  });
 }

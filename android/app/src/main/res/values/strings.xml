@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ChemoSense</string>
+    <string name="title_activity_main">ChemoSense</string>
+    <string name="package_name">com.chemosense.app</string>
+    <string name="custom_url_scheme">com.chemosense.app</string>
+</resources>

@@ -28,7 +28,7 @@ function LoginPage() {
     try {
       if (isRegister) {
         // Register new user
-        const res = await fetch("https://chemosense-backend-production.up.railway.app/api/register", {
+        const res = await fetch("http://localhost:3001/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -48,7 +48,7 @@ function LoginPage() {
         navigate({ to: "/dashboard" });
       } else {
         // Login
-        const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+        const res = await fetch("http://localhost:3001/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ student_id: studentId, password }),

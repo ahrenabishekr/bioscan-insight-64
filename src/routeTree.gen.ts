@@ -8,287 +8,308 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SimulatorRouteImport } from './routes/simulator'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as SensorsRouteImport } from './routes/sensors'
-import { Route as ScanRouteImport } from './routes/scan'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LibraryRouteImport } from './routes/library'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CompareRouteImport } from './routes/compare'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CasesIndexRouteImport } from './routes/cases.index'
-import { Route as LibraryIdRouteImport } from './routes/library.$id'
-import { Route as CasesIdRouteImport } from './routes/cases.$id'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as SimulatorRouteImport } from "./routes/simulator";
+import { Route as SettingsRouteImport } from "./routes/settings";
+import { Route as SensorsRouteImport } from "./routes/sensors";
+import { Route as ScanRouteImport } from "./routes/scan";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as LibraryRouteImport } from "./routes/library";
+import { Route as ForgotPasswordRouteImport } from "./routes/forgot-password";
+import { Route as DashboardRouteImport } from "./routes/dashboard";
+import { Route as CompareRouteImport } from "./routes/compare";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as CasesIndexRouteImport } from "./routes/cases.index";
+import { Route as LibraryIdRouteImport } from "./routes/library.$id";
+import { Route as CasesIdRouteImport } from "./routes/cases.$id";
 
 const SimulatorRoute = SimulatorRouteImport.update({
-  id: '/simulator',
-  path: '/simulator',
+  id: "/simulator",
+  path: "/simulator",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SensorsRoute = SensorsRouteImport.update({
-  id: '/sensors',
-  path: '/sensors',
+  id: "/sensors",
+  path: "/sensors",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ScanRoute = ScanRouteImport.update({
-  id: '/scan',
-  path: '/scan',
+  id: "/scan",
+  path: "/scan",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LibraryRoute = LibraryRouteImport.update({
-  id: '/library',
-  path: '/library',
+  id: "/library",
+  path: "/library",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: "/forgot-password",
+  path: "/forgot-password",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const CompareRoute = CompareRouteImport.update({
-  id: '/compare',
-  path: '/compare',
+  id: "/compare",
+  path: "/compare",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const CasesIndexRoute = CasesIndexRouteImport.update({
-  id: '/cases/',
-  path: '/cases/',
+  id: "/cases/",
+  path: "/cases/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LibraryIdRoute = LibraryIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
+  id: "/$id",
+  path: "/$id",
   getParentRoute: () => LibraryRoute,
-} as any)
+} as any);
 const CasesIdRoute = CasesIdRouteImport.update({
-  id: '/cases/$id',
-  path: '/cases/$id',
+  id: "/cases/$id",
+  path: "/cases/$id",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRouteWithChildren
-  '/login': typeof LoginRoute
-  '/scan': typeof ScanRoute
-  '/sensors': typeof SensorsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
-  '/cases/$id': typeof CasesIdRoute
-  '/library/$id': typeof LibraryIdRoute
-  '/cases/': typeof CasesIndexRoute
+  "/": typeof IndexRoute;
+  "/compare": typeof CompareRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/forgot-password": typeof ForgotPasswordRoute;
+  "/library": typeof LibraryRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/scan": typeof ScanRoute;
+  "/sensors": typeof SensorsRoute;
+  "/settings": typeof SettingsRoute;
+  "/simulator": typeof SimulatorRoute;
+  "/cases/$id": typeof CasesIdRoute;
+  "/library/$id": typeof LibraryIdRoute;
+  "/cases/": typeof CasesIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRouteWithChildren
-  '/login': typeof LoginRoute
-  '/scan': typeof ScanRoute
-  '/sensors': typeof SensorsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
-  '/cases/$id': typeof CasesIdRoute
-  '/library/$id': typeof LibraryIdRoute
-  '/cases': typeof CasesIndexRoute
+  "/": typeof IndexRoute;
+  "/compare": typeof CompareRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/forgot-password": typeof ForgotPasswordRoute;
+  "/library": typeof LibraryRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/scan": typeof ScanRoute;
+  "/sensors": typeof SensorsRoute;
+  "/settings": typeof SettingsRoute;
+  "/simulator": typeof SimulatorRoute;
+  "/cases/$id": typeof CasesIdRoute;
+  "/library/$id": typeof LibraryIdRoute;
+  "/cases": typeof CasesIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/compare': typeof CompareRoute
-  '/dashboard': typeof DashboardRoute
-  '/library': typeof LibraryRouteWithChildren
-  '/login': typeof LoginRoute
-  '/scan': typeof ScanRoute
-  '/sensors': typeof SensorsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
-  '/cases/$id': typeof CasesIdRoute
-  '/library/$id': typeof LibraryIdRoute
-  '/cases/': typeof CasesIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/compare": typeof CompareRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/forgot-password": typeof ForgotPasswordRoute;
+  "/library": typeof LibraryRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/scan": typeof ScanRoute;
+  "/sensors": typeof SensorsRoute;
+  "/settings": typeof SettingsRoute;
+  "/simulator": typeof SimulatorRoute;
+  "/cases/$id": typeof CasesIdRoute;
+  "/library/$id": typeof LibraryIdRoute;
+  "/cases/": typeof CasesIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/compare'
-    | '/dashboard'
-    | '/library'
-    | '/login'
-    | '/scan'
-    | '/sensors'
-    | '/settings'
-    | '/simulator'
-    | '/cases/$id'
-    | '/library/$id'
-    | '/cases/'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/compare"
+    | "/dashboard"
+    | "/forgot-password"
+    | "/library"
+    | "/login"
+    | "/scan"
+    | "/sensors"
+    | "/settings"
+    | "/simulator"
+    | "/cases/$id"
+    | "/library/$id"
+    | "/cases/";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/compare'
-    | '/dashboard'
-    | '/library'
-    | '/login'
-    | '/scan'
-    | '/sensors'
-    | '/settings'
-    | '/simulator'
-    | '/cases/$id'
-    | '/library/$id'
-    | '/cases'
+    | "/"
+    | "/compare"
+    | "/dashboard"
+    | "/forgot-password"
+    | "/library"
+    | "/login"
+    | "/scan"
+    | "/sensors"
+    | "/settings"
+    | "/simulator"
+    | "/cases/$id"
+    | "/library/$id"
+    | "/cases";
   id:
-    | '__root__'
-    | '/'
-    | '/compare'
-    | '/dashboard'
-    | '/library'
-    | '/login'
-    | '/scan'
-    | '/sensors'
-    | '/settings'
-    | '/simulator'
-    | '/cases/$id'
-    | '/library/$id'
-    | '/cases/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/compare"
+    | "/dashboard"
+    | "/forgot-password"
+    | "/library"
+    | "/login"
+    | "/scan"
+    | "/sensors"
+    | "/settings"
+    | "/simulator"
+    | "/cases/$id"
+    | "/library/$id"
+    | "/cases/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  CompareRoute: typeof CompareRoute
-  DashboardRoute: typeof DashboardRoute
-  LibraryRoute: typeof LibraryRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  ScanRoute: typeof ScanRoute
-  SensorsRoute: typeof SensorsRoute
-  SettingsRoute: typeof SettingsRoute
-  SimulatorRoute: typeof SimulatorRoute
-  CasesIdRoute: typeof CasesIdRoute
-  CasesIndexRoute: typeof CasesIndexRoute
+  IndexRoute: typeof IndexRoute;
+  CompareRoute: typeof CompareRoute;
+  DashboardRoute: typeof DashboardRoute;
+  ForgotPasswordRoute: typeof ForgotPasswordRoute;
+  LibraryRoute: typeof LibraryRouteWithChildren;
+  LoginRoute: typeof LoginRoute;
+  ScanRoute: typeof ScanRoute;
+  SensorsRoute: typeof SensorsRoute;
+  SettingsRoute: typeof SettingsRoute;
+  SimulatorRoute: typeof SimulatorRoute;
+  CasesIdRoute: typeof CasesIdRoute;
+  CasesIndexRoute: typeof CasesIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/simulator': {
-      id: '/simulator'
-      path: '/simulator'
-      fullPath: '/simulator'
-      preLoaderRoute: typeof SimulatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sensors': {
-      id: '/sensors'
-      path: '/sensors'
-      fullPath: '/sensors'
-      preLoaderRoute: typeof SensorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan': {
-      id: '/scan'
-      path: '/scan'
-      fullPath: '/scan'
-      preLoaderRoute: typeof ScanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/library': {
-      id: '/library'
-      path: '/library'
-      fullPath: '/library'
-      preLoaderRoute: typeof LibraryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compare': {
-      id: '/compare'
-      path: '/compare'
-      fullPath: '/compare'
-      preLoaderRoute: typeof CompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cases/': {
-      id: '/cases/'
-      path: '/cases'
-      fullPath: '/cases/'
-      preLoaderRoute: typeof CasesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/library/$id': {
-      id: '/library/$id'
-      path: '/$id'
-      fullPath: '/library/$id'
-      preLoaderRoute: typeof LibraryIdRouteImport
-      parentRoute: typeof LibraryRoute
-    }
-    '/cases/$id': {
-      id: '/cases/$id'
-      path: '/cases/$id'
-      fullPath: '/cases/$id'
-      preLoaderRoute: typeof CasesIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/simulator": {
+      id: "/simulator";
+      path: "/simulator";
+      fullPath: "/simulator";
+      preLoaderRoute: typeof SimulatorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings": {
+      id: "/settings";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof SettingsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/sensors": {
+      id: "/sensors";
+      path: "/sensors";
+      fullPath: "/sensors";
+      preLoaderRoute: typeof SensorsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/scan": {
+      id: "/scan";
+      path: "/scan";
+      fullPath: "/scan";
+      preLoaderRoute: typeof ScanRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/library": {
+      id: "/library";
+      path: "/library";
+      fullPath: "/library";
+      preLoaderRoute: typeof LibraryRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/forgot-password": {
+      id: "/forgot-password";
+      path: "/forgot-password";
+      fullPath: "/forgot-password";
+      preLoaderRoute: typeof ForgotPasswordRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compare": {
+      id: "/compare";
+      path: "/compare";
+      fullPath: "/compare";
+      preLoaderRoute: typeof CompareRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/cases/": {
+      id: "/cases/";
+      path: "/cases";
+      fullPath: "/cases/";
+      preLoaderRoute: typeof CasesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/library/$id": {
+      id: "/library/$id";
+      path: "/$id";
+      fullPath: "/library/$id";
+      preLoaderRoute: typeof LibraryIdRouteImport;
+      parentRoute: typeof LibraryRoute;
+    };
+    "/cases/$id": {
+      id: "/cases/$id";
+      path: "/cases/$id";
+      fullPath: "/cases/$id";
+      preLoaderRoute: typeof CasesIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 interface LibraryRouteChildren {
-  LibraryIdRoute: typeof LibraryIdRoute
+  LibraryIdRoute: typeof LibraryIdRoute;
 }
 
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryIdRoute: LibraryIdRoute,
-}
+};
 
 const LibraryRouteWithChildren =
-  LibraryRoute._addFileChildren(LibraryRouteChildren)
+  LibraryRoute._addFileChildren(LibraryRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LibraryRoute: LibraryRouteWithChildren,
   LoginRoute: LoginRoute,
   ScanRoute: ScanRoute,
@@ -297,7 +318,17 @@ const rootRouteChildren: RootRouteChildren = {
   SimulatorRoute: SimulatorRoute,
   CasesIdRoute: CasesIdRoute,
   CasesIndexRoute: CasesIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
+
+import type { getRouter } from "./router.tsx";
+import type { startInstance } from "./start.ts";
+declare module "@tanstack/react-start" {
+  interface Register {
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
+  }
+}
