@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 3000;
-const ASSETS_DIR = join(__dirname, "dist/server");
+const ASSETS_DIR = join(__dirname, "dist/client");
 
 const MIME_TYPES = {
   ".js": "application/javascript",
