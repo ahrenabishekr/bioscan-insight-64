@@ -1,4 +1,4 @@
-export const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+export const API_URL = "https://YOUR-RENDER-URL.onrender.com/api";
 
 export async function loadCasesFromAPI() {
   const res = await fetch(`${API_URL}/cases`);
