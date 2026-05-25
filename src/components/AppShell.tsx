@@ -1,9 +1,11 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen, Settings, Sun, Moon, LogOut } from "lucide-react";
+import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen, Settings, Sun, Moon, LogOut, Bell } from "lucide-react";
 import { getSession, clearSession } from "@/lib/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { SessionUser } from "@/lib/auth";
 import { applyTheme, getTheme, type Theme } from "@/lib/theme";
+
+const API_URL = "https://chemosense-backend-production.up.railway.app/api";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -22,6 +24,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [theme, setTheme] = useState<Theme>("light");
+  const [unread, setUnread] = useState(0);
+
+  const fetchUnread = useCallback(async () => {
+    try {
+      const r = await fetch(`${API_URL}/alerts`);
+      const data = await r.json();
+      if (Array.isArray(data)) setUnread(data.filter((a: any) => !a.is_read).length);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const s = getSession();
@@ -30,7 +41,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const t = getTheme();
     setTheme(t);
     applyTheme(t);
-  }, [navigate]);
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [navigate, fetchUnread]);
 
   if (!user) return null;
 
@@ -45,12 +59,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar (desktop) */}
       <aside className="hidden md:flex w-60 shrink-0 border-r border-border flex-col no-print">
         <div className="px-5 py-5 border-b border-border">
-          <div className="flex items-center gap-2">
-            <div className="size-7 rounded-md bg-primary grid place-items-center text-primary-foreground font-mono text-xs font-bold">CS</div>
-            <div>
-              <div className="font-semibold text-sm leading-tight">ChemoSense</div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Clinical Diagnostics</div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="size-7 rounded-md bg-primary grid place-items-center text-primary-foreground font-mono text-xs font-bold">CS</div>
+              <div>
+                <div className="font-semibold text-sm leading-tight">ChemoSense</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Clinical Diagnostics</div>
+              </div>
             </div>
+            <Link to="/alerts" className="relative size-7 grid place-items-center text-muted-foreground hover:text-foreground">
+              <Bell className="size-4" />
+              {unread > 0 && (
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-destructive text-white text-[9px] font-bold grid place-items-center">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
         <nav className="flex-1 py-3">
@@ -93,10 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           </div>
           <button
-            onClick={() => {
-              clearSession();
-              navigate({ to: "/login" });
-            }}
+            onClick={() => { clearSession(); navigate({ to: "/login" }); }}
             className="mt-2 text-[11px] flex items-center gap-1.5 text-muted-foreground hover:text-destructive"
           >
             <LogOut className="size-3" /> Sign out
@@ -112,6 +133,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="font-semibold text-sm">ChemoSense</span>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/alerts" className="relative size-7 grid place-items-center text-muted-foreground">
+              <Bell className="size-4" />
+              {unread > 0 && (
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-destructive text-white text-[9px] font-bold grid place-items-center">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
+            </Link>
             <button onClick={toggleTheme} className="size-7 grid place-items-center text-muted-foreground">
               {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>

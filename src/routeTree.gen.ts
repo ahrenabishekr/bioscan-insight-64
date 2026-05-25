@@ -20,6 +20,7 @@ import { Route as ForgotPasswordRouteImport } from "./routes/forgot-password";
 import { Route as DashboardRouteImport } from "./routes/dashboard";
 import { Route as CompareRouteImport } from "./routes/compare";
 import { Route as AnalyticsRouteImport } from "./routes/analytics";
+import { Route as AlertsRouteImport } from "./routes/alerts";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as CasesIndexRouteImport } from "./routes/cases.index";
 import { Route as LibraryIdRouteImport } from "./routes/library.$id";
@@ -80,6 +81,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
   path: "/analytics",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AlertsRoute = AlertsRouteImport.update({
+  id: "/alerts",
+  path: "/alerts",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -103,6 +109,7 @@ const CasesIdRoute = CasesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/alerts": typeof AlertsRoute;
   "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/alerts": typeof AlertsRoute;
   "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/alerts": typeof AlertsRoute;
   "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/alerts"
     | "/analytics"
     | "/compare"
     | "/dashboard"
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
+    | "/alerts"
     | "/analytics"
     | "/compare"
     | "/dashboard"
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
+    | "/alerts"
     | "/analytics"
     | "/compare"
     | "/dashboard"
@@ -209,6 +221,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  AlertsRoute: typeof AlertsRoute;
   AnalyticsRoute: typeof AnalyticsRoute;
   CompareRoute: typeof CompareRoute;
   DashboardRoute: typeof DashboardRoute;
@@ -303,6 +316,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AnalyticsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/alerts": {
+      id: "/alerts";
+      path: "/alerts";
+      fullPath: "/alerts";
+      preLoaderRoute: typeof AlertsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/": {
       id: "/";
       path: "/";
@@ -347,6 +367,7 @@ const LibraryRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
   AnalyticsRoute: AnalyticsRoute,
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
