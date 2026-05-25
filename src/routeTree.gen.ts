@@ -15,6 +15,7 @@ import { Route as SensorsRouteImport } from "./routes/sensors";
 import { Route as ScanRouteImport } from "./routes/scan";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as LibraryRouteImport } from "./routes/library";
+import { Route as HistoryRouteImport } from "./routes/history";
 import { Route as ForgotPasswordRouteImport } from "./routes/forgot-password";
 import { Route as DashboardRouteImport } from "./routes/dashboard";
 import { Route as CompareRouteImport } from "./routes/compare";
@@ -51,6 +52,11 @@ const LoginRoute = LoginRouteImport.update({
 const LibraryRoute = LibraryRouteImport.update({
   id: "/library",
   path: "/library",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const HistoryRoute = HistoryRouteImport.update({
+  id: "/history",
+  path: "/history",
   getParentRoute: () => rootRouteImport,
 } as any);
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
+  "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
   "/scan": typeof ScanRoute;
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
+  "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
   "/scan": typeof ScanRoute;
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
+  "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
   "/scan": typeof ScanRoute;
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
+    | "/history"
     | "/library"
     | "/login"
     | "/scan"
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
+    | "/history"
     | "/library"
     | "/login"
     | "/scan"
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
+    | "/history"
     | "/library"
     | "/login"
     | "/scan"
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute;
   DashboardRoute: typeof DashboardRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
+  HistoryRoute: typeof HistoryRoute;
   LibraryRoute: typeof LibraryRouteWithChildren;
   LoginRoute: typeof LoginRoute;
   ScanRoute: typeof ScanRoute;
@@ -240,6 +253,13 @@ declare module "@tanstack/react-router" {
       path: "/library";
       fullPath: "/library";
       preLoaderRoute: typeof LibraryRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/history": {
+      id: "/history";
+      path: "/history";
+      fullPath: "/history";
+      preLoaderRoute: typeof HistoryRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/forgot-password": {
@@ -310,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HistoryRoute: HistoryRoute,
   LibraryRoute: LibraryRouteWithChildren,
   LoginRoute: LoginRoute,
   ScanRoute: ScanRoute,

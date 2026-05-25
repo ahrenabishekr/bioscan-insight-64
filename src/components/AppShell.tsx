@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, ScanLine, BookOpen, Cpu, Activity, GitCompare, Inbox, LogOut, Settings, Sun, Moon } from "lucide-react";
+import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp } from "lucide-react";
 import { getSession, clearSession } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
@@ -13,6 +13,7 @@ const nav = [
   { to: "/simulator", label: "Simulator", icon: Activity },
   { to: "/compare", label: "Compare", icon: GitCompare },
   { to: "/cases", label: "Cases", icon: Inbox },
+  { to: "/history", label: "History", icon: TrendingUp },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
