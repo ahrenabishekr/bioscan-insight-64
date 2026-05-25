@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useMemo, useState } from "react";
-import { loadCases, type ClinicalCase } from "@/lib/cases";
+
 import { pathogens } from "@/data/pathogens";
 import { ScanLine, BookOpen, Cpu, Activity, FlaskConical, Users, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -31,14 +31,14 @@ const COLORS = ["#0d9488", "#0891b2", "#7c3aed", "#dc2626", "#d97706", "#059669"
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const [cases, setCases] = useState<ClinicalCase[]>([]);
+  
   const [q, setQ] = useState("");
   const [stats, setStats] = useState({ total_scans: 0, total_cases: 0, active_sensors: 0, open_cases: 0, recent_scans: [] });
   const [dbCases, setDbCases] = useState<any[]>([]);
   const today = useMemo(() => new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }), []);
 
   useEffect(() => {
-    setCases(loadCases());
+    
     // Load real stats from backend
     fetch(`${API_URL}/dashboard`)
       .then(r => r.json())
@@ -54,23 +54,23 @@ function DashboardPage() {
   // Pathogen frequency chart data
   const pathogenData = useMemo(() => {
     const counts: Record<string, number> = {};
-    cases.forEach(c => {
-      counts[c.pathogenName] = (counts[c.pathogenName] || 0) + 1;
+    dbCases.forEach(c => {
+      counts[c.pathogen_name] = (counts[c.pathogen_name] || 0) + 1;
     });
     return Object.entries(counts)
       .map(([name, count]) => ({ name: name.split(" ")[0], count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
-  }, [cases]);
+  }, [dbCases]);
 
   // Risk level pie chart
   const riskData = useMemo(() => {
     const counts: Record<string, number> = {};
-    cases.forEach(c => {
-      counts[c.riskLevel] = (counts[c.riskLevel] || 0) + 1;
+    dbCases.forEach(c => {
+      counts[c.risk_level] = (counts[c.risk_level] || 0) + 1;
     });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [cases]);
+  }, [dbCases]);
 
   return (
     <>
@@ -162,9 +162,9 @@ function DashboardPage() {
                       <Link to="/cases/$id" params={{ id: c.id }} className="block">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
-                          <RiskPill level={c.riskLevel} />
+                          <RiskPill level={c.risk_level} />
                         </div>
-                        <div className="text-sm font-medium italic mt-1">{c.pathogenName}</div>
+                        <div className="text-sm font-medium italic mt-1">{c.pathogen_name}</div>
                         <div className="text-[11px] text-muted-foreground">{new Date(c.createdAt).toLocaleString()}</div>
                       </Link>
                     </li>
