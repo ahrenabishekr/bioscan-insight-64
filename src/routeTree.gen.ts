@@ -19,6 +19,7 @@ import { Route as HistoryRouteImport } from "./routes/history";
 import { Route as ForgotPasswordRouteImport } from "./routes/forgot-password";
 import { Route as DashboardRouteImport } from "./routes/dashboard";
 import { Route as CompareRouteImport } from "./routes/compare";
+import { Route as AnalyticsRouteImport } from "./routes/analytics";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as CasesIndexRouteImport } from "./routes/cases.index";
 import { Route as LibraryIdRouteImport } from "./routes/library.$id";
@@ -74,6 +75,11 @@ const CompareRoute = CompareRouteImport.update({
   path: "/compare",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: "/analytics",
+  path: "/analytics",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -97,6 +103,7 @@ const CasesIdRoute = CasesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
@@ -130,6 +138,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/analytics": typeof AnalyticsRoute;
   "/compare": typeof CompareRoute;
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/analytics"
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
+    | "/analytics"
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
+    | "/analytics"
     | "/compare"
     | "/dashboard"
     | "/forgot-password"
@@ -197,6 +209,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  AnalyticsRoute: typeof AnalyticsRoute;
   CompareRoute: typeof CompareRoute;
   DashboardRoute: typeof DashboardRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
@@ -283,6 +296,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof CompareRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/analytics": {
+      id: "/analytics";
+      path: "/analytics";
+      fullPath: "/analytics";
+      preLoaderRoute: typeof AnalyticsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/": {
       id: "/";
       path: "/";
@@ -327,6 +347,7 @@ const LibraryRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
