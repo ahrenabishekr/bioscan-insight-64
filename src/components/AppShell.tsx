@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen } from "lucide-react";
+import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen, Settings } from "lucide-react";
 import { getSession, clearSession } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
