@@ -1,9 +1,8 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useState, useEffect } from "react";
-import { buildCase, saveCase } from "@/lib/cases";
 import { getSession } from "@/lib/auth";
-import { ScanLine, Loader2, FlaskConical } from "lucide-react";
+import { ScanLine, Loader2, FlaskConical, ArrowRight } from "lucide-react";
 
 const API_URL = "https://chemosense-backend-production.up.railway.app/api";
 
@@ -22,15 +21,13 @@ function Page() {
   const [biomarkers, setBiomarkers] = useState<string[]>([]);
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     fetch(`${API_URL}/scan/biomarkers`)
       .then((r) => r.json())
-      .then((data) => {
-        setBiomarkers(data);
-        if (data.length > 0) setBio(data[0]);
-      })
+      .then((data) => { setBiomarkers(data); if (data.length > 0) setBio(data[0]); })
       .catch(() => setBiomarkers([]));
   }, []);
 
@@ -55,24 +52,39 @@ function Page() {
       }
       const data = await res.json();
       setResults(data);
-    } catch (err) {
+    } catch {
       setError("Scan failed. Check your connection.");
     } finally {
       setScanning(false);
     }
   }
 
-  function persist(r: any) {
+  async function generateReport(r: any) {
     const u = getSession();
-    const c = buildCase({
-      doctor: u?.name ?? "Unknown",
-      mode,
-      input: mode === "symptom" ? text : bio,
-      pathogen: r.pathogen,
-      biomarker: r.topBiomarker,
-    });
-    saveCase(c);
-    navigate({ to: "/cases/$id", params: { id: c.id } });
+    setSaving(r.pathogen.id);
+    try {
+      const res = await fetch(`${API_URL}/scans/full`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: `CS-${Date.now().toString(36).toUpperCase()}`,
+          pathogen_name: r.pathogen.name,
+          biomarker_name: r.topBiomarker?.name ?? mode === "biomarker" ? bio : r.topBiomarker?.name,
+          risk_level: r.pathogen.riskLevel,
+          scanned_by: u?.name ?? "Unknown",
+          result: "positive",
+          notes: mode === "symptom" ? text : bio,
+        }),
+      });
+      const data = await res.json();
+      if (data.case_id) {
+        navigate({ to: "/cases/$id", params: { id: String(data.case_id) } });
+      }
+    } catch {
+      setError("Failed to save scan. Try again.");
+    } finally {
+      setSaving(null);
+    }
   }
 
   return (
@@ -130,14 +142,12 @@ function Page() {
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         Match score: <span className="font-mono font-bold">{r.score}</span>
-                        {r.matched.length > 0 && <> · keywords: <span className="text-primary">{r.matched.join(", ")}</span></>}
+                        {r.matched?.length > 0 && <> · keywords: <span className="text-primary">{r.matched.join(", ")}</span></>}
                       </div>
                       <div className="text-xs mt-2">
-                        Recommended biomarker: <strong>{r.topBiomarker.name}</strong> · LOD {r.topBiomarker.lod} · {r.topBiomarker.detectionTime}
+                        Recommended biomarker: <strong>{r.topBiomarker?.name}</strong> · LOD {r.topBiomarker?.lod} · {r.topBiomarker?.detectionTime}
                       </div>
-                      <div className="text-xs mt-1 text-muted-foreground">
-                        {r.pathogen.summary}
-                      </div>
+                      <div className="text-xs mt-1 text-muted-foreground">{r.pathogen.summary}</div>
                       <div className="mt-2">
                         <p className="text-xs font-medium">Treatment:</p>
                         <ul className="text-xs text-muted-foreground mt-1 space-y-0.5">
@@ -147,9 +157,11 @@ function Page() {
                         </ul>
                       </div>
                     </div>
-                    <button onClick={() => persist(r)}
-                      className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground font-medium whitespace-nowrap">
-                      Generate report
+                    <button onClick={() => generateReport(r)} disabled={saving === r.pathogen.id}
+                      className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground font-medium whitespace-nowrap inline-flex items-center gap-1.5 disabled:opacity-60">
+                      {saving === r.pathogen.id
+                        ? <><Loader2 className="size-3 animate-spin" /> Saving…</>
+                        : <><ArrowRight className="size-3" /> Generate report</>}
                     </button>
                   </div>
                 </div>
