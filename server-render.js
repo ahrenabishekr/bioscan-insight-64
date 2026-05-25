@@ -6,7 +6,7 @@ import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
-const BUILD_DIR = join(__dirname, "build");
+const BUILD_DIR = join(__dirname, "dist");
 
 console.log("🚀 Starting ChemoSense...");
 console.log(`📂 Build directory: ${BUILD_DIR}`);
@@ -20,7 +20,7 @@ async function startServer() {
 
   app.use(express.static(join(BUILD_DIR, "client"), { immutable: true, maxAge: "1y" }));
 
-  const build = await import("./build/server/index.js");
+  const build = await import("./dist/server/index.js");
 
   app.all("*", createRequestHandler({ build: build, mode: process.env.NODE_ENV || "production" }));
 
