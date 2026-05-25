@@ -26,7 +26,7 @@ async function main() {
 
   const server = createServer(async (req, res) => {
     try {
-      // Serve static assets directly
+      // Serve static assets directly from dist/client/assets/
       if (req.url.startsWith("/assets/")) {
         const filePath = join(ASSETS_DIR, req.url);
         if (existsSync(filePath)) {
@@ -43,18 +43,21 @@ async function main() {
       for await (const chunk of req) chunks.push(chunk);
       const bodyBuffer = chunks.length ? Buffer.concat(chunks) : undefined;
 
+      // Remove accept-encoding to prevent compressed responses
+      const headers = Object.fromEntries(
+        Object.entries(req.headers).filter(([k, v]) => v != null && k !== "accept-encoding")
+      );
+
       const request = new Request(url.toString(), {
         method: req.method,
-        headers: Object.fromEntries(
-          Object.entries(req.headers).filter(([_, v]) => v != null)
-        ),
+        headers,
         body: bodyBuffer?.length > 0 ? bodyBuffer : undefined,
       });
 
       const response = await handler.fetch(request, {
         ASSETS: {
-          fetch: async (req) => {
-            const u = new URL(typeof req === "string" ? req : req.url);
+          fetch: async (r) => {
+            const u = new URL(typeof r === "string" ? r : r.url);
             const filePath = join(ASSETS_DIR, u.pathname);
             if (existsSync(filePath)) {
               return new Response(readFileSync(filePath), {
@@ -66,12 +69,12 @@ async function main() {
         },
       }, {});
 
-      const bodyText = await response.text();
-      console.log(`[${req.method}] ${req.url} → ${response.status} (${bodyText.length} bytes)`);
-
       res.statusCode = response.status;
-      response.headers.forEach((value, key) => res.setHeader(key, value));
-      res.end(bodyText);
+      response.headers.forEach((value, key) => {
+        if (key !== "content-encoding") res.setHeader(key, value);
+      });
+      const body = await response.arrayBuffer();
+      res.end(Buffer.from(body));
     } catch (err) {
       console.error("Request error:", err);
       res.statusCode = 500;
