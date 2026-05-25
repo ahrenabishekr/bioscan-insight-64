@@ -2,11 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { pathogens } from "@/data/pathogens";
 import { useState } from "react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, Cell, RadarChart,
-  Radar, PolarGrid, PolarAngleAxis, Legend
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, Legend } from "recharts";
 import { AlertTriangle, FlaskConical, MapPin, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/analytics")({
