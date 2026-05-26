@@ -208,6 +208,30 @@ function Page() {
           </button>
         </div>
 
+        {/* Treatment Outcome */}
+        {c.status === "open" && (
+          <div className="clinical-card p-5 no-print border-amber-200">
+            <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <CheckCircle className="size-4 text-emerald-500" /> Close Case &amp; Record Outcome
+            </h2>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {["Recovered", "Escalated", "Referred", "Deceased", "Lost to follow-up"].map(o => (
+                <button key={o} onClick={() => setOutcome(o)}
+                  className={`h-9 px-3 text-xs rounded-md border transition-all ${outcome === o ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:bg-muted"}`}>
+                  {o}
+                </button>
+              ))}
+            </div>
+            <textarea value={outcomeNotes} onChange={e => setOutcomeNotes(e.target.value)} rows={2}
+              placeholder="Outcome notes (optional)…"
+              className="w-full p-3 text-sm border border-input rounded-md bg-background mb-2" />
+            <button onClick={closeCase} disabled={!outcome || closing}
+              className="h-9 px-4 text-xs rounded-md bg-emerald-600 text-white inline-flex items-center gap-1.5 disabled:opacity-50">
+              {closing ? "Closing…" : "Close Case"}
+            </button>
+          </div>
+        )}
+
         <p className="text-[11px] text-muted-foreground">
           ChemoSense — Clinical decision support. Not a substitute for laboratory confirmation.
         </p>
