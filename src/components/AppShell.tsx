@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen, Settings, Sun, Moon, LogOut, Bell } from "lucide-react";
+import { Activity, LayoutDashboard, ScanLine, FlaskConical, Cpu, GitCompare, Inbox, TrendingUp, BarChart2, BookOpen, Settings, Sun, Moon, LogOut, Bell, Users } from "lucide-react";
 import { getSession, clearSession } from "@/lib/auth";
 import { useEffect, useState, useCallback } from "react";
 import type { SessionUser } from "@/lib/auth";
@@ -15,6 +15,7 @@ const nav = [
   { to: "/simulator", label: "Simulator", icon: Activity },
   { to: "/compare", label: "Compare", icon: GitCompare },
   { to: "/cases", label: "Cases", icon: Inbox },
+  { to: "/patients", label: "Patients", icon: Users },
   { to: "/history", label: "History", icon: TrendingUp },
   { to: "/analytics", label: "Analytics", icon: BarChart2 },
 ];

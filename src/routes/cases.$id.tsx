@@ -2,7 +2,7 @@ import { createFileRoute, useParams, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill, LabRow } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { findPathogen } from "@/data/pathogens";
-import { Printer, Mail, Save, Download, Loader2 } from "lucide-react";
+import { Printer, Mail, Save, Download, Loader2, CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
 
 const API_URL = "https://chemosense-backend-production.up.railway.app/api";
@@ -19,6 +19,9 @@ function Page() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [outcome, setOutcome] = useState("");
+  const [outcomeNotes, setOutcomeNotes] = useState("");
+  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -41,6 +44,19 @@ function Page() {
     }
     load();
   }, [id]);
+
+  async function closeCase() {
+    if (!outcome) return;
+    setClosing(true);
+    try {
+      await fetch(`${API_URL}/cases/${id}/outcome`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ outcome, outcome_notes: outcomeNotes }),
+      });
+      setC((prev: any) => ({ ...prev, status: "closed" }));
+    } finally { setClosing(false); }
+  }
 
   async function saveNotes() {
     setSaving(true);

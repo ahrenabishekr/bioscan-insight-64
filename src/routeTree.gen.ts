@@ -13,6 +13,7 @@ import { Route as SimulatorRouteImport } from "./routes/simulator";
 import { Route as SettingsRouteImport } from "./routes/settings";
 import { Route as SensorsRouteImport } from "./routes/sensors";
 import { Route as ScanRouteImport } from "./routes/scan";
+import { Route as PatientsRouteImport } from "./routes/patients";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as LibraryRouteImport } from "./routes/library";
 import { Route as HistoryRouteImport } from "./routes/history";
@@ -44,6 +45,11 @@ const SensorsRoute = SensorsRouteImport.update({
 const ScanRoute = ScanRouteImport.update({
   id: "/scan",
   path: "/scan",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const PatientsRoute = PatientsRouteImport.update({
+  id: "/patients",
+  path: "/patients",
   getParentRoute: () => rootRouteImport,
 } as any);
 const LoginRoute = LoginRouteImport.update({
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
+  "/patients": typeof PatientsRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
+  "/patients": typeof PatientsRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   "/history": typeof HistoryRoute;
   "/library": typeof LibraryRouteWithChildren;
   "/login": typeof LoginRoute;
+  "/patients": typeof PatientsRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | "/history"
     | "/library"
     | "/login"
+    | "/patients"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | "/history"
     | "/library"
     | "/login"
+    | "/patients"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | "/history"
     | "/library"
     | "/login"
+    | "/patients"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute;
   LibraryRoute: typeof LibraryRouteWithChildren;
   LoginRoute: typeof LoginRoute;
+  PatientsRoute: typeof PatientsRoute;
   ScanRoute: typeof ScanRoute;
   SensorsRoute: typeof SensorsRoute;
   SettingsRoute: typeof SettingsRoute;
@@ -265,6 +278,13 @@ declare module "@tanstack/react-router" {
       path: "/scan";
       fullPath: "/scan";
       preLoaderRoute: typeof ScanRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/patients": {
+      id: "/patients";
+      path: "/patients";
+      fullPath: "/patients";
+      preLoaderRoute: typeof PatientsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/login": {
@@ -375,6 +395,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   LibraryRoute: LibraryRouteWithChildren,
   LoginRoute: LoginRoute,
+  PatientsRoute: PatientsRoute,
   ScanRoute: ScanRoute,
   SensorsRoute: SensorsRoute,
   SettingsRoute: SettingsRoute,
