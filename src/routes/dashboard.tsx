@@ -153,11 +153,11 @@ function DashboardPage() {
             {/* Last 3 cases */}
             <div className="clinical-card p-5">
               <h2 className="text-sm font-semibold">Last 3 cases</h2>
-              {cases.length === 0 ? (
+              {dbCases.length === 0 ? (
                 <p className="text-xs text-muted-foreground mt-3">No cases yet. Run your first scan.</p>
               ) : (
                 <ul className="mt-3 divide-y divide-border">
-                  {cases.slice(0, 3).map((c) => (
+                  {dbCases.slice(0, 3).map((c) => (
                     <li key={c.id} className="py-3">
                       <Link to="/cases/$id" params={{ id: c.id }} className="block">
                         <div className="flex items-center justify-between">
