@@ -55,7 +55,7 @@ function DashboardPage() {
   const pathogenData = useMemo(() => {
     const counts: Record<string, number> = {};
     dbCases.forEach(c => {
-      counts[c.pathogen_name] = (counts[c.pathogen_name] || 0) + 1;
+      counts[c.title] = (counts[c.title] || 0) + 1;
     });
     return Object.entries(counts)
       .map(([name, count]) => ({ name: name.split(" ")[0], count }))
@@ -159,13 +159,13 @@ function DashboardPage() {
                 <ul className="mt-3 divide-y divide-border">
                   {dbCases.slice(0, 3).map((c) => (
                     <li key={c.id} className="py-3">
-                      <Link to="/cases/$id" params={{ id: c.id }} className="block">
+                      <Link to="/cases/$id" params={{ id: String(c.id) }} className="block">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
-                          <RiskPill level={c.risk_level} />
+                          <span className="text-xs text-muted-foreground capitalize">{c.status}</span>
                         </div>
-                        <div className="text-sm font-medium italic mt-1">{c.pathogen_name}</div>
-                        <div className="text-[11px] text-muted-foreground">{new Date(c.createdAt).toLocaleString()}</div>
+                        <div className="text-sm font-medium italic mt-1">{c.title}</div>
+                        <div className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleString()}</div>
                       </Link>
                     </li>
                   ))}
