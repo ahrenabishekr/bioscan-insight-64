@@ -3,7 +3,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { getSession, setSession, type SessionUser } from "@/lib/auth";
 import { applyTheme, getTheme, type Theme } from "@/lib/theme";
-import { Sun, Moon, User } from "lucide-react";
+import { Sun, Moon, User, Lock, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   component: () => <AppShell><Page /></AppShell>,
@@ -14,6 +14,10 @@ function Page() {
   const [u, setU] = useState<SessionUser | null>(null);
   const [theme, setTheme] = useState<Theme>("light");
   const [saved, setSaved] = useState(false);
+  const [oldPw, setOldPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     setU(getSession());
@@ -35,6 +39,22 @@ function Page() {
   function changeTheme(t: Theme) {
     setTheme(t);
     applyTheme(t);
+  }
+
+  async function changePassword() {
+    if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
+    setPwLoading(true); setPwMsg("");
+    try {
+      const res = await fetch("https://chemosense-backend-production.up.railway.app/api/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),
+      });
+      const data = await res.json();
+      if (data.success) { setPwMsg("Password changed successfully ✅"); setOldPw(""); setNewPw(""); }
+      else setPwMsg(data.error || "Failed to change password.");
+    } catch { setPwMsg("Network error. Try again."); }
+    finally { setPwLoading(false); }
   }
 
   return (
@@ -76,12 +96,53 @@ function Page() {
             <button onClick={() => changeTheme("dark")} className={`px-4 h-9 text-xs font-medium rounded inline-flex items-center gap-2 ${theme === "dark" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Moon className="size-3.5" /> Dark</button>
           </div>
         </section>
+
+        <section className="clinical-card p-5">
+          <h2 className="text-sm font-semibold flex items-center gap-2"><Lock className="size-4 text-primary" /> Change Password</h2>
+          <div className="grid sm:grid-cols-2 gap-3 mt-3">
+            <label className="block">
+              <span className="text-xs font-medium">Current password</span>
+              <input type="password" value={oldPw} onChange={e => setOldPw(e.target.value)}
+                placeholder="Current password"
+                className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium">New password</span>
+              <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
+                placeholder="Min. 6 characters"
+                className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background" />
+            </label>
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            <button onClick={changePassword} disabled={pwLoading || !oldPw || !newPw}
+              className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50">
+              {pwLoading ? <><Loader2 className="size-3 animate-spin" /> Changing…</> : "Change password"}
+            </button>
+            {pwMsg && <span className={`text-xs ${pwMsg.includes("✅") ? "text-emerald-600" : "text-destructive"}`}>{pwMsg}</span>}
+          </div>
+        </section>
       </div>
     </>
   );
 }
 
 function Field({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
+  async function changePassword() {
+    if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
+    setPwLoading(true); setPwMsg("");
+    try {
+      const res = await fetch("https://chemosense-backend-production.up.railway.app/api/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),
+      });
+      const data = await res.json();
+      if (data.success) { setPwMsg("Password changed successfully ✅"); setOldPw(""); setNewPw(""); }
+      else setPwMsg(data.error || "Failed to change password.");
+    } catch { setPwMsg("Network error. Try again."); }
+    finally { setPwLoading(false); }
+  }
+
   return (
     <label className="block">
       <span className="text-xs font-medium">{label}</span>
