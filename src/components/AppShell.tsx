@@ -151,7 +151,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
         {/* Bottom tabs (mobile) */}
         <nav className="md:hidden fixed bottom-0 inset-x-0 bg-background border-t border-border grid grid-cols-5 no-print z-40">
-          {nav.slice(0, 5).map((n) => {
+          {[...nav.slice(0, 4), { to: "/alerts", label: "Alerts", icon: Bell }].map((n) => {
             const active = path.startsWith(n.to);
             return (
               <Link
