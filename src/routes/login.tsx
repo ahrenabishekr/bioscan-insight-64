@@ -1,14 +1,16 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { setSession, type SessionUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  validateSearch: (s: Record<string, unknown>) => ({ demo: s.demo === "1" || s.demo === 1 }),
   head: () => ({ meta: [{ title: "Sign in — ChemoSense" }] }),
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { demo } = useSearch({ from: "/login" });
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -16,6 +18,28 @@ function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (demo) {
+      setStudentId("demo");
+      setPassword("demo123");
+      // Auto-submit after short delay
+      setTimeout(async () => {
+        try {
+          const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: "demo", password: "demo123" }),
+          });
+          const data = await res.json();
+          if (data.id) {
+            setSession(data);
+            navigate({ to: "/dashboard" });
+          }
+        } catch {}
+      }, 500);
+    }
+  }, [demo]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

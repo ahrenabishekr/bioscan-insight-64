@@ -35,6 +35,7 @@ function DashboardPage() {
   const [q, setQ] = useState("");
   const [stats, setStats] = useState({ total_scans: 0, total_cases: 0, active_sensors: 0, open_cases: 0, recent_scans: [] });
   const [dbCases, setDbCases] = useState<any[]>([]);
+  const [allScans, setAllScans] = useState<any[]>([]);
   const today = useMemo(() => new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }), []);
 
   useEffect(() => {
@@ -48,6 +49,10 @@ function DashboardPage() {
     fetch(`${API_URL}/cases`)
       .then(r => r.json())
       .then(setDbCases)
+      .catch(console.error);
+    fetch(`${API_URL}/scans`)
+      .then(r => r.json())
+      .then(setAllScans)
       .catch(console.error);
   }, []);
 

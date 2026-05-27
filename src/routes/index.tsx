@@ -52,8 +52,8 @@ function Index() {
           <Link to="/login" className="h-11 px-6 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-2 font-medium shadow-elegant">
             <ScanLine className="size-4" /> Start Scanning
           </Link>
-          <Link to="/login" className="h-11 px-6 rounded-md border border-border inline-flex items-center gap-2 text-sm hover:bg-muted">
-            View Demo →
+          <Link to="/login?demo=1" className="h-11 px-6 rounded-md border border-border inline-flex items-center gap-2 text-sm hover:bg-muted">
+            Try Demo →
           </Link>
         </div>
       </section>
