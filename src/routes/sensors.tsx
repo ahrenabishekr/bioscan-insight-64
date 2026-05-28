@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
@@ -19,6 +19,8 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [autoSim, setAutoSim] = useState(false);
+  const [liveStream, setLiveStream] = useState(false);
+  const eventSourceRef = React.useRef<EventSource | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [newSensor, setNewSensor] = useState({ name: "", type: "Electrochemical", location: "", description: "" });
   const [adding, setAdding] = useState(false);
@@ -29,8 +31,14 @@ function Page() {
   }, []);
 
   useEffect(() => {
-    if (selected) loadReadings(selected.id);
-  }, [selected]);
+    if (selected) {
+      loadReadings(selected.id);
+      // Close any existing stream
+      eventSourceRef.current?.close();
+      eventSourceRef.current = null;
+      setLiveStream(false);
+    }
+  }, [selected?.id]);
 
   useEffect(() => {
     if (autoSim && selected) {
@@ -99,6 +107,25 @@ function Page() {
       setSelected((s: any) => ({ ...s, last_reading: value }));
       if (!val) setSimValue("");
     } finally { setSimulating(false); }
+  }
+
+  function toggleLiveStream() {
+    if (liveStream) {
+      eventSourceRef.current?.close();
+      eventSourceRef.current = null;
+      setLiveStream(false);
+    } else {
+      if (!selected) return;
+      const es = new EventSource(`${API_URL}/sensors/${selected.id}/live`);
+      es.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        setReadings(prev => [...prev.slice(-49), { ...data, created_at: data.timestamp }]);
+        setSelected((s: any) => ({ ...s, last_reading: data.reading }));
+      };
+      es.onerror = () => { es.close(); setLiveStream(false); };
+      eventSourceRef.current = es;
+      setLiveStream(true);
+    }
   }
 
   async function calibrate() {
@@ -244,9 +271,9 @@ function Page() {
                       className="h-9 px-4 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-50">
                       <Activity className="size-3.5" /> Send
                     </button>
-                    <button onClick={() => setAutoSim(!autoSim)}
-                      className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${autoSim ? "bg-destructive/10 border-destructive text-destructive" : "border-border text-muted-foreground"}`}>
-                      {autoSim ? "⏹ Stop auto" : "▶ Auto simulate"}
+                    <button onClick={toggleLiveStream}
+                      className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
+                      {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
                     </button>
                     <button onClick={calibrate}
                       className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
