@@ -166,10 +166,34 @@ function LoginPage() {
             {loading ? "Please wait..." : isRegister ? "Create Account" : "Sign in"}
           </button>
 
+          {!isRegister && (
+            <div className="mt-3 text-center">
+              <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-primary underline">
+                Forgot password?
+              </Link>
+            </div>
+          )}
           <button type="button" onClick={() => { setIsRegister(!isRegister); setErr(""); }}
             className="mt-3 w-full text-xs text-muted-foreground underline">
             {isRegister ? "Already have an account? Sign in" : "New user? Create account"}
           </button>
+          <div className="mt-6 pt-4 border-t border-border text-center">
+            <p className="text-[11px] text-muted-foreground mb-2">Quick access</p>
+            <button type="button" onClick={async () => {
+              setStudentId("demo");
+              setPassword("demo123");
+              try {
+                const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ student_id: "demo", password: "demo123" }),
+                });
+                const data = await res.json();
+                if (data.id) { (await import("@/lib/auth")).setSession(data); navigate({ to: "/dashboard" }); }
+              } catch {}
+            }} className="w-full h-9 rounded-md border border-primary/30 bg-primary/5 text-primary text-xs font-medium hover:bg-primary/10 transition-colors">
+              Try Demo Account
+            </button>
+          </div>
         </form>
       </div>
     </div>
