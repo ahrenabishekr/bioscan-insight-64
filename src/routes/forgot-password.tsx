@@ -18,7 +18,7 @@ function ForgotPassword() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3001/api/forgot-password", {
+      const response = await fetch("https://chemosense-backend-production.up.railway.app/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: studentId.toUpperCase() }),
