@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState, useRef } from "react";
-import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench } from "lucide-react";
+import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
 const API_URL = "https://chemosense-backend-production.up.railway.app/api";
@@ -19,6 +19,9 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [autoSim, setAutoSim] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSensor, setNewSensor] = useState({ name: "", type: "Electrochemical", location: "", description: "" });
+  const [adding, setAdding] = useState(false);
   const autoRef = useRef<any>(null);
 
   useEffect(() => {
@@ -42,6 +45,21 @@ function Page() {
     }
     return () => clearInterval(autoRef.current);
   }, [autoSim, selected]);
+
+  async function addSensor() {
+    if (!newSensor.name) return;
+    setAdding(true);
+    try {
+      await fetch(`${API_URL}/sensors`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newSensor, status: "active" }),
+      });
+      setShowAdd(false);
+      setNewSensor({ name: "", type: "Electrochemical", location: "", description: "" });
+      await loadSensors();
+    } finally { setAdding(false); }
+  }
 
   async function loadSensors() {
     setLoading(true);
@@ -99,9 +117,9 @@ function Page() {
     <>
       <PageHeader title="Sensors" subtitle="Live chemosensor readings & QS threshold monitoring"
         actions={
-          <Link to="/sensors" className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 hover:bg-muted">
+          <button onClick={() => setShowAdd(true)} className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5">
             <Plus className="size-3.5" /> Add sensor
-          </Link>
+          </button>
         }
       />
       <div className="px-6 py-6 max-w-6xl">
@@ -246,6 +264,58 @@ function Page() {
           </div>
         )}
       </div>
+      {/* Add sensor modal */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="clinical-card p-6 w-full max-w-md bg-background">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold">Add New Sensor</h2>
+              <button onClick={() => setShowAdd(false)} className="size-7 grid place-items-center text-muted-foreground hover:text-foreground rounded border border-border">
+                <X className="size-3.5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-xs font-medium">Sensor name *</span>
+                <input value={newSensor.name} onChange={e => setNewSensor(s => ({ ...s, name: e.target.value }))}
+                  placeholder="e.g. Electrochemical Sensor D4"
+                  className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium">Type</span>
+                <select value={newSensor.type} onChange={e => setNewSensor(s => ({ ...s, type: e.target.value }))}
+                  className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background">
+                  {["Electrochemical", "Optical", "Piezoelectric", "Fluorescence", "Mass spectrometry"].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium">Location</span>
+                <input value={newSensor.location} onChange={e => setNewSensor(s => ({ ...s, location: e.target.value }))}
+                  placeholder="e.g. Lab Room 4"
+                  className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium">Description</span>
+                <input value={newSensor.description} onChange={e => setNewSensor(s => ({ ...s, description: e.target.value }))}
+                  placeholder="e.g. Detects Pyocyanin via redox"
+                  className="mt-1 w-full h-10 border border-input rounded-md px-3 text-sm bg-background" />
+              </label>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={addSensor} disabled={adding || !newSensor.name}
+                className="flex-1 h-10 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
+                {adding ? "Adding…" : "Add Sensor"}
+              </button>
+              <button onClick={() => setShowAdd(false)}
+                className="h-10 px-4 rounded-md border border-border text-sm text-muted-foreground hover:bg-muted">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

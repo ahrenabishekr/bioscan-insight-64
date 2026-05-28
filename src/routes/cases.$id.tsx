@@ -118,12 +118,14 @@ function Page() {
 
   async function shareEmail() {
     if (!c || scans.length === 0) return alert("No scan data to email.");
+    const session = (await import("@/lib/auth")).getSession();
+    const toEmail = session?.email || "rahrenabishek2006@gmail.com";
     const s = scans[0];
     await fetch(`${API_URL}/email-report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        to: "rahrenabishek2006@gmail.com",
+        to: toEmail,
         caseId: c.id,
         doctor: s.scanned_by || "—",
         pathogen: s.pathogen_name,
