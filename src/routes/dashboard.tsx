@@ -28,6 +28,13 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 }
 
 const COLORS = ["#0d9488", "#0891b2", "#7c3aed", "#dc2626", "#d97706", "#059669"];
+const RISK_COLORS: Record<string, string> = {
+  Critical: "#ef4444",
+  High: "#f59e0b",
+  Moderate: "#3b82f6",
+  Low: "#10b981",
+  Unknown: "#94a3b8",
+};
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -74,7 +81,7 @@ function DashboardPage() {
     dbCases.forEach(c => {
       counts[c.risk_level] = (counts[c.risk_level] || 0) + 1;
     });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    return Object.entries(counts).map(([name, value]) => ({ name: name || "Unknown", value }));
   }, [dbCases]);
 
   return (
@@ -146,8 +153,8 @@ function DashboardPage() {
                 <h2 className="text-sm font-semibold mb-2">Risk Distribution</h2>
                 <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
-                    <Pie data={riskData} cx="50%" cy="50%" outerRadius={60} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
-                      {riskData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    <Pie data={riskData} cx="50%" cy="50%" outerRadius={60} dataKey="value" label={({ name, percent }) => percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : ""} labelLine={false} fontSize={10}>
+                      {riskData.map((entry: any, i) => <Cell key={i} fill={RISK_COLORS[entry.name] || COLORS[i % COLORS.length]} />)}
                     </Pie>
                     <Tooltip />
                   </PieChart>
