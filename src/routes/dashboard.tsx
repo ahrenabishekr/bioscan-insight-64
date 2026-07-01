@@ -70,7 +70,7 @@ function DashboardPage() {
       counts[c.title] = (counts[c.title] || 0) + 1;
     });
     return Object.entries(counts)
-      .map(([name, count]) => ({ name: name.split(" ")[0], count }))
+      .map(([name, count]) => ({ name: name.split(" ").slice(0,2).join(" "), count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
   }, [dbCases]);
