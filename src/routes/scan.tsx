@@ -135,6 +135,12 @@ function Page() {
           </button>
         </div>
 
+        {scanNote && results.length === 0 && (
+          <div className="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-800">
+            <span className="font-semibold">AI Assessment:</span> {scanNote}
+          </div>
+        )}
+
         {results.length > 0 && (
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
