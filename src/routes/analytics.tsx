@@ -3,7 +3,10 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { pathogens } from "@/data/pathogens";
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, Legend, CartesianGrid } from "recharts";
-import { AlertTriangle, FlaskConical, TrendingUp, Activity, Info } from "lucide-react";
+import { AlertTriangle, FlaskConical, TrendingUp, Activity, Info, Loader2 } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/analytics")({
   component: () => <AppShell><Page /></AppShell>,
@@ -82,7 +85,10 @@ const RISK_COLORS: Record<number, string> = { 0: "#f1f5f9", 1: "#fef08a", 2: "#f
 const RISK_LABELS: Record<number, string> = { 0: "–", 1: "!", 2: "!!", 3: "!!!" };
 
 function Page() {
+  const navigate = useNavigate();
   const [selectedPathogen, setSelectedPathogen] = useState(pathogens[0]);
+  const [lodMatches, setLodMatches] = useState<any[]>([]);
+  const [lodMatchLoading, setLodMatchLoading] = useState(false);
   const [lod, setLod] = useState("");
   const [concentration, setConcentration] = useState("");
   const [calcResult, setCalcResult] = useState<null | { crossed: boolean; ratio: number; message: string }>(null);
@@ -97,7 +103,7 @@ function Page() {
     "AMR Genes": p.amrGenes.length,
   }));
 
-  function calculate() {
+  async function calculate() {
     const l = parseFloat(lod);
     const c = parseFloat(concentration);
     if (isNaN(l) || isNaN(c) || l <= 0) return;
@@ -110,6 +116,26 @@ function Page() {
         ? `Detection confirmed — concentration is ${ratio.toFixed(1)}× above LOD. Pathogen presence likely.`
         : `Below detection threshold — concentration is ${(ratio * 100).toFixed(0)}% of LOD. Consider repeat testing.`,
     });
+    if (crossed) {
+      setLodMatches([]);
+      setLodMatchLoading(true);
+      try {
+        const biomarkerName = selectedPathogen.biomarkers[0]?.name || "";
+        const res = await fetch(`${API_URL}/scan/biomarker`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ biomarker: biomarkerName }),
+        });
+        const data = await res.json();
+        setLodMatches(Array.isArray(data) ? data : (data.results || []));
+      } catch (e) {
+        console.error("LOD match failed:", e);
+      } finally {
+        setLodMatchLoading(false);
+      }
+    } else {
+      setLodMatches([]);
+    }
   }
 
   return (
@@ -250,7 +276,7 @@ function Page() {
             {calcResult && (
               <div className={`p-4 rounded-lg border flex items-start gap-3 ${calcResult.crossed ? "bg-destructive/5 border-destructive/30" : "bg-emerald-50 border-emerald-200"}`}>
                 <AlertTriangle className={`size-4 mt-0.5 shrink-0 ${calcResult.crossed ? "text-destructive" : "text-emerald-600"}`} />
-                <div>
+                <div className="flex-1">
                   <div className={`text-sm font-semibold ${calcResult.crossed ? "text-destructive" : "text-emerald-700"}`}>
                     {calcResult.crossed ? "LOD Crossed — Detection Positive" : "Below LOD — Not Detected"}
                   </div>
@@ -259,6 +285,32 @@ function Page() {
                     <div className={`h-full rounded-full ${calcResult.crossed ? "bg-destructive" : "bg-emerald-500"}`}
                       style={{ width: `${Math.min(100, calcResult.ratio * 50)}%` }} />
                   </div>
+                  {lodMatchLoading && (
+                    <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+                      <Loader2 className="size-3 animate-spin" /> Identifying pathogen from biomarker…
+                    </div>
+                  )}
+                  {lodMatches.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold mb-2">Likely pathogens for detected biomarker:</p>
+                      <div className="space-y-2">
+                        {lodMatches.slice(0, 3).map((r: any) => (
+                          <div key={r.pathogen.id} className="flex items-center justify-between p-2 rounded-md bg-background border border-border">
+                            <div>
+                              <span className="text-xs font-semibold italic">{r.pathogen.name}</span>
+                              <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded border font-medium ${r.pathogen.riskLevel === "Critical" ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-amber-50 text-amber-700 border-amber-300"}`}>
+                                {r.pathogen.riskLevel}
+                              </span>
+                            </div>
+                            <button onClick={() => navigate({ to: "/scan" })}
+                              className="text-[10px] px-2 py-1 rounded bg-primary text-primary-foreground">
+                              Run full scan →
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
