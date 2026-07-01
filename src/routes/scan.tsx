@@ -21,6 +21,8 @@ function Page() {
   const [biomarkers, setBiomarkers] = useState<string[]>([]);
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [aiPowered, setAiPowered] = useState(false);
+  const [scanNote, setScanNote] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -43,15 +45,22 @@ function Page() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
         });
+        const data = await res.json();
+        const resultList = Array.isArray(data) ? data : (data.results || []);
+        setResults(resultList);
+        setAiPowered(data.aiPowered ?? false);
+        setScanNote(data.note || "");
       } else {
         res = await fetch(`${API_URL}/scan/biomarker`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ biomarker: bio }),
         });
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : (data.results || []));
+        setAiPowered(false);
+        setScanNote("");
       }
-      const data = await res.json();
-      setResults(data);
     } catch {
       setError("Scan failed. Check your connection.");
     } finally {
@@ -128,9 +137,24 @@ function Page() {
 
         {results.length > 0 && (
           <div className="mt-6">
-            <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <FlaskConical className="size-4 text-primary" /> Results ({results.length} pathogen{results.length > 1 ? "s" : ""} matched)
-            </h2>
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <h2 className="text-sm font-semibold flex items-center gap-2">
+                <FlaskConical className="size-4 text-primary" /> Results ({results.length} pathogen{results.length > 1 ? "s" : ""} matched)
+              </h2>
+              {aiPowered && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                  ✦ AI-powered
+                </span>
+              )}
+              {!aiPowered && results.length > 0 && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
+                  Keyword matcher
+                </span>
+              )}
+            </div>
+            {scanNote && (
+              <div className="mb-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-800">{scanNote}</div>
+            )}
             <div className="space-y-4">
               {results.map((r, idx) => {
                 const riskBorder = r.pathogen.riskLevel === "Critical" ? "border-t-destructive" : r.pathogen.riskLevel === "High" ? "border-t-amber-400" : "border-t-blue-400";
