@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown, Minus, Activity, AlertTriangle, Search, Filter, Loader2 } from "lucide-react";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/history")({
   component: () => <AppShell><Page /></AppShell>,

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Users, TrendingUp, AlertTriangle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/patients")({
   component: () => <AppShell><PatientsPage /></AppShell>,

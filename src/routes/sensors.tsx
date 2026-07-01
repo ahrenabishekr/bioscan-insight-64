@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/sensors")({
   component: () => <AppShell><Page /></AppShell>,

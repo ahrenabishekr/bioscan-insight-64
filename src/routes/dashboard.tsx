@@ -6,7 +6,7 @@ import { pathogens } from "@/data/pathogens";
 import { ScanLine, BookOpen, Cpu, Activity, FlaskConical, Users, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => (<AppShell><DashboardPage /></AppShell>),

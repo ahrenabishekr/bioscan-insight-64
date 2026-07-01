@@ -15,7 +15,7 @@ export interface ClinicalCase {
 }
 
 const KEY = "chemosense.cases";
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export function loadCases(): ClinicalCase[] {
   if (typeof window === "undefined") return [];

@@ -3,7 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState, useMemo } from "react";
 import { Inbox, Search, Plus, Loader2, FlaskConical, User, Calendar } from "lucide-react";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/cases/")({
   component: () => <AppShell><Page /></AppShell>,

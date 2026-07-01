@@ -26,7 +26,7 @@ function LoginPage() {
       // Auto-submit after short delay
       setTimeout(async () => {
         try {
-          const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+          const res = await fetch("https://chemosense-backend.onrender.com/api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ student_id: "demo", password: "demo123" }),
@@ -52,7 +52,7 @@ function LoginPage() {
     try {
       if (isRegister) {
         // Register new user
-        const res = await fetch("https://chemosense-backend-production.up.railway.app/api/register", {
+        const res = await fetch("https://chemosense-backend.onrender.com/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -72,7 +72,7 @@ function LoginPage() {
         navigate({ to: "/dashboard" });
       } else {
         // Login
-        const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+        const res = await fetch("https://chemosense-backend.onrender.com/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ student_id: studentId, password }),
@@ -183,7 +183,7 @@ function LoginPage() {
               setStudentId("demo");
               setPassword("demo123");
               try {
-                const res = await fetch("https://chemosense-backend-production.up.railway.app/api/login", {
+                const res = await fetch("https://chemosense-backend.onrender.com/api/login", {
                   method: "POST", headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ student_id: "demo", password: "demo123" }),
                 });

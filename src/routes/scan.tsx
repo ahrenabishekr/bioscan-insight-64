@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getSession } from "@/lib/auth";
 import { ScanLine, Loader2, FlaskConical, ArrowRight } from "lucide-react";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/scan")({
   component: () => <AppShell><Page /></AppShell>,

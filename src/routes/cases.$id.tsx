@@ -5,7 +5,7 @@ import { findPathogen } from "@/data/pathogens";
 import { Printer, Mail, Save, Download, Loader2, CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/cases/$id")({
   component: () => <AppShell><Page /></AppShell>,

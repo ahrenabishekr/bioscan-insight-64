@@ -3,7 +3,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck, AlertTriangle, Info } from "lucide-react";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/alerts")({
   component: () => <AppShell><Page /></AppShell>,

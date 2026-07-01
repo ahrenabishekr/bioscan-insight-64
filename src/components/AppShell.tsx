@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { SessionUser } from "@/lib/auth";
 import { applyTheme, getTheme, type Theme } from "@/lib/theme";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

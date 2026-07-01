@@ -45,7 +45,7 @@ function Page() {
     if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
     setPwLoading(true); setPwMsg("");
     try {
-      const res = await fetch("https://chemosense-backend-production.up.railway.app/api/change-password", {
+      const res = await fetch("https://chemosense-backend.onrender.com/api/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),
@@ -131,7 +131,7 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
     if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
     setPwLoading(true); setPwMsg("");
     try {
-      const res = await fetch("https://chemosense-backend-production.up.railway.app/api/change-password", {
+      const res = await fetch("https://chemosense-backend.onrender.com/api/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),

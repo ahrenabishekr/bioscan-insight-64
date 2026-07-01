@@ -3,7 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Users, Activity, Clock, TrendingUp, Shield, Loader2, RefreshCw } from "lucide-react";
 
-const API_URL = "https://chemosense-backend-production.up.railway.app/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export const Route = createFileRoute("/outbreaks")({
   component: () => <AppShell><Page /></AppShell>,
