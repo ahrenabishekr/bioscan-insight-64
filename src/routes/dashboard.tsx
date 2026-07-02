@@ -75,14 +75,15 @@ function DashboardPage() {
       .slice(0, 5);
   }, [dbCases]);
 
-  // Risk level pie chart
+  // Risk level pie chart - use allScans which has real risk_level
   const riskData = useMemo(() => {
     const counts: Record<string, number> = {};
-    dbCases.forEach(c => {
-      counts[c.risk_level] = (counts[c.risk_level] || 0) + 1;
+    allScans.forEach((s: any) => {
+      const level = s.risk_level && s.risk_level !== "undefined" && s.risk_level !== "null" ? s.risk_level : null;
+      if (level) counts[level] = (counts[level] || 0) + 1;
     });
-    return Object.entries(counts).map(([name, value]) => ({ name: name || "Unknown", value }));
-  }, [dbCases]);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [allScans]);
 
   return (
     <>
