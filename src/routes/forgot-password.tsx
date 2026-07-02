@@ -43,6 +43,12 @@ function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-2xl font-bold mb-2">🔐 Forgot Password?</h2>
+        {resetLink && (
+          <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+            <p className="text-xs font-semibold text-blue-800 mb-1">Your reset link (valid 1 hour):</p>
+            <a href={resetLink} className="text-xs text-blue-600 break-all underline">{resetLink}</a>
+          </div>
+        )}
         <p className="text-gray-600 text-sm mb-6">
           Enter your Student ID and we'll send you a reset link
         </p>
