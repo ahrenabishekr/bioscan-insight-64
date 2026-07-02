@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "start": "node server-render.js"
+    "start": "node server-render.js",
+    "test:selenium": "node tests/selenium/chemosense.test.cjs",
+    "test:appium": "node tests/appium/chemosense.appium.cjs",
+    "test:all": "npm run test:selenium && npm run test:appium"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
@@ -84,15 +87,19 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "chromedriver": "^150.0.1",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "exceljs": "^4.4.0",
     "globals": "^15.15.0",
     "prettier": "^3.7.3",
+    "selenium-webdriver": "^4.45.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "xlsx": "^0.18.5"
   }
 }
