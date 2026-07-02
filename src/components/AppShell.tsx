@@ -136,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <header className="md:hidden border-b border-border px-4 h-14 flex items-center justify-between no-print bg-background sticky top-0 z-30">
+        <header className="md:hidden border-b border-border px-4 h-16 flex items-center justify-between no-print bg-background/95 backdrop-blur sticky top-0 z-30">
           <div className="flex items-center gap-2.5">
             <div className="size-8 rounded-lg bg-primary grid place-items-center text-primary-foreground font-mono text-xs font-bold">CS</div>
             <div>
@@ -166,25 +166,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 inset-x-0 bg-background border-t border-border no-print z-40">
-          <div className="grid grid-cols-5 h-16">
+          <div className="grid grid-cols-5 h-[68px] pb-safe">
             {bottomNav.map((n) => {
               const active = path.startsWith(n.to);
               const isAlerts = n.to === "/alerts";
+              const isScan = n.to === "/scan";
               return (
                 <Link key={n.to} to={n.to}
-                  className={`flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors relative ${
+                  className={`flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all relative ${
                     active ? "text-primary" : "text-muted-foreground"
                   }`}>
-                  <div className="relative">
-                    <n.icon className="size-5" />
-                    {isAlerts && unread > 0 && (
-                      <span className="absolute -top-1 -right-1 size-3.5 rounded-full bg-destructive text-white text-[8px] font-bold grid place-items-center">
-                        {unread > 9 ? "9+" : unread}
-                      </span>
-                    )}
-                  </div>
-                  {n.label}
-                  {active && <span className="absolute top-0 inset-x-0 h-0.5 bg-primary rounded-b-full" />}
+                  {isScan ? (
+                    <div className={`size-12 rounded-2xl grid place-items-center shadow-md transition-all ${active ? "bg-primary" : "bg-primary/90"}`}>
+                      <n.icon className="size-5 text-white" />
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className={`size-8 rounded-xl grid place-items-center transition-all ${active ? "bg-primary/10" : ""}`}>
+                        <n.icon className="size-5" />
+                      </div>
+                      {isAlerts && unread > 0 && (
+                        <span className="absolute -top-1 -right-1 size-3.5 rounded-full bg-destructive text-white text-[8px] font-bold grid place-items-center">
+                          {unread > 9 ? "9+" : unread}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <span className={isScan ? "text-primary font-semibold" : ""}>{n.label}</span>
+                  {active && !isScan && <span className="absolute top-0 inset-x-2 h-0.5 bg-primary rounded-b-full" />}
                 </Link>
               );
             })}
