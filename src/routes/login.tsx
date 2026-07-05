@@ -4,7 +4,7 @@ import { setSession, type SessionUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  validateSearch: (s: Record<string, unknown>) => ({ demo: s.demo === "1" || s.demo === 1 || s.demo === true }),
+  validateSearch: (s: Record<string, unknown>) => ({ demo: s.demo === "1" || s.demo === 1 || s.demo === true || s.demo === "true" }),
   head: () => ({ meta: [{ title: "Sign in — ChemoSense" }] }),
 });
 
