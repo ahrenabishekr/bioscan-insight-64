@@ -4,6 +4,7 @@ import { getSession, clearSession } from "@/lib/auth";
 import { useEffect, useState, useCallback } from "react";
 import type { SessionUser } from "@/lib/auth";
 import { applyTheme, getTheme, type Theme } from "@/lib/theme";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -39,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const fetchUnread = useCallback(async () => {
     try {
-      const r = await fetch(`${API_URL}/alerts`);
+      const r = await apiFetch(`${API_URL}/alerts`);
       const data = await r.json();
       if (Array.isArray(data)) setUnread(data.filter((a: any) => !a.is_read).length);
     } catch {}

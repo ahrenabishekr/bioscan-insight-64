@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, Legend, CartesianGrid } from "recharts";
 import { AlertTriangle, FlaskConical, TrendingUp, Activity, Info, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -121,7 +122,7 @@ function Page() {
       setLodMatchLoading(true);
       try {
         const biomarkerName = selectedPathogen.biomarkers[0]?.name || "";
-        const res = await fetch(`${API_URL}/scan/biomarker`, {
+        const res = await apiFetch(`${API_URL}/scan/biomarker`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ biomarker: biomarkerName }),

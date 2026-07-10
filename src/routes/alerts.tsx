@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck, AlertTriangle, Info } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -19,18 +20,18 @@ function Page() {
   async function loadAlerts() {
     setLoading(true);
     try {
-      const r = await fetch(`${API_URL}/alerts`);
+      const r = await apiFetch(`${API_URL}/alerts`);
       setAlerts(await r.json());
     } finally { setLoading(false); }
   }
 
   async function markRead(id: number) {
-    await fetch(`${API_URL}/alerts/${id}/read`, { method: "PATCH" });
+    await apiFetch(`${API_URL}/alerts/${id}/read`, { method: "PATCH" });
     setAlerts(a => a.map(x => x.id === id ? { ...x, is_read: 1 } : x));
   }
 
   async function markAllRead() {
-    await fetch(`${API_URL}/alerts/read-all`, { method: "PATCH" });
+    await apiFetch(`${API_URL}/alerts/read-all`, { method: "PATCH" });
     setAlerts(a => a.map(x => ({ ...x, is_read: 1 })));
   }
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { findPathogen } from "@/data/pathogens";
 import { Printer, Mail, Save, Download, Loader2, CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -28,8 +29,8 @@ function Page() {
       setLoading(true);
       try {
         const [caseRes, scansRes] = await Promise.all([
-          fetch(`${API_URL}/cases`),
-          fetch(`${API_URL}/scans`),
+          apiFetch(`${API_URL}/cases`),
+          apiFetch(`${API_URL}/scans`),
         ]);
         const cases = await caseRes.json();
         const allScans = await scansRes.json();
@@ -49,7 +50,7 @@ function Page() {
     if (!outcome) return;
     setClosing(true);
     try {
-      await fetch(`${API_URL}/cases/${id}/outcome`, {
+      await apiFetch(`${API_URL}/cases/${id}/outcome`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ outcome, outcome_notes: outcomeNotes }),
@@ -61,7 +62,7 @@ function Page() {
   async function saveNotes() {
     setSaving(true);
     try {
-      await fetch(`${API_URL}/cases/${id}`, {
+      await apiFetch(`${API_URL}/cases/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...c, notes }),
@@ -121,7 +122,7 @@ function Page() {
     const session = (await import("@/lib/auth")).getSession();
     const toEmail = session?.email || "rahrenabishek2006@gmail.com";
     const s = scans[0];
-    await fetch(`${API_URL}/email-report`, {
+    await apiFetch(`${API_URL}/email-report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -3,6 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { Users, TrendingUp, AlertTriangle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -19,7 +20,7 @@ function PatientsPage() {
   const [tlLoading, setTlLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/patients`)
+    apiFetch(`${API_URL}/patients`)
       .then(r => r.json())
       .then(data => { setPatients(Array.isArray(data) ? data : []); })
       .finally(() => setLoading(false));
@@ -28,7 +29,7 @@ function PatientsPage() {
   async function loadTimeline(patient_id: string) {
     setTlLoading(true);
     try {
-      const r = await fetch(`${API_URL}/patients/${encodeURIComponent(patient_id)}/timeline`);
+      const r = await apiFetch(`${API_URL}/patients/${encodeURIComponent(patient_id)}/timeline`);
       const data = await r.json();
       setTimeline(data);
     } finally { setTlLoading(false); }

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Users, Activity, Clock, TrendingUp, Shield, Loader2, RefreshCw } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -20,8 +21,8 @@ function Page() {
     setLoading(true);
     try {
       const [o, w] = await Promise.all([
-        fetch(`${API_URL}/outbreaks`).then(r => r.json()),
-        fetch(`${API_URL}/ward-heatmap`).then(r => r.json()),
+        apiFetch(`${API_URL}/outbreaks`).then(r => r.json()),
+        apiFetch(`${API_URL}/ward-heatmap`).then(r => r.json()),
       ]);
       setOutbreaks(Array.isArray(o) ? o : []);
       setWards(Array.isArray(w) ? w : []);

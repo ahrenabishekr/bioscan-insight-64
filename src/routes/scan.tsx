@@ -3,6 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useState, useEffect } from "react";
 import { getSession } from "@/lib/auth";
 import { ScanLine, Loader2, FlaskConical, ArrowRight } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -27,7 +28,7 @@ function Page() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/scan/biomarkers`)
+    apiFetch(`${API_URL}/scan/biomarkers`)
       .then((r) => r.json())
       .then((data) => { setBiomarkers(data); if (data.length > 0) setBio(data[0]); })
       .catch(() => setBiomarkers([]));
@@ -40,7 +41,7 @@ function Page() {
     try {
       let res;
       if (mode === "symptom") {
-        res = await fetch(`${API_URL}/scan/symptoms`, {
+        res = await apiFetch(`${API_URL}/scan/symptoms`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
@@ -51,7 +52,7 @@ function Page() {
         setAiPowered(data.aiPowered ?? false);
         setScanNote(data.note || "");
       } else {
-        res = await fetch(`${API_URL}/scan/biomarker`, {
+        res = await apiFetch(`${API_URL}/scan/biomarker`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ biomarker: bio }),
@@ -72,7 +73,7 @@ function Page() {
     const u = getSession();
     setSaving(r.pathogen.id);
     try {
-      const res = await fetch(`${API_URL}/scans/full`, {
+      const res = await apiFetch(`${API_URL}/scans/full`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

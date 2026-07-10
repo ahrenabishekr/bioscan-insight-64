@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { pathogens } from "@/data/pathogens";
 import { ScanLine, BookOpen, Cpu, Activity, FlaskConical, Users, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -48,16 +49,16 @@ function DashboardPage() {
   useEffect(() => {
     
     // Load real stats from backend
-    fetch(`${API_URL}/dashboard`)
+    apiFetch(`${API_URL}/dashboard`)
       .then(r => r.json())
       .then(setStats)
       .catch(console.error);
     // Load real cases from backend
-    fetch(`${API_URL}/cases`)
+    apiFetch(`${API_URL}/cases`)
       .then(r => r.json())
       .then(setDbCases)
       .catch(console.error);
-    fetch(`${API_URL}/scans`)
+    apiFetch(`${API_URL}/scans`)
       .then(r => r.json())
       .then(setAllScans)
       .catch(console.error);

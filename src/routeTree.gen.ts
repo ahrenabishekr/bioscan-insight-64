@@ -13,6 +13,7 @@ import { Route as SimulatorRouteImport } from "./routes/simulator";
 import { Route as SettingsRouteImport } from "./routes/settings";
 import { Route as SensorsRouteImport } from "./routes/sensors";
 import { Route as ScanRouteImport } from "./routes/scan";
+import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
 import { Route as PatientsRouteImport } from "./routes/patients";
 import { Route as OutbreaksRouteImport } from "./routes/outbreaks";
 import { Route as LoginRouteImport } from "./routes/login";
@@ -46,6 +47,11 @@ const SensorsRoute = SensorsRouteImport.update({
 const ScanRoute = ScanRouteImport.update({
   id: "/scan",
   path: "/scan",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: "/reset-password",
+  path: "/reset-password",
   getParentRoute: () => rootRouteImport,
 } as any);
 const PatientsRoute = PatientsRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/scan": typeof ScanRoute;
   "/sensors": typeof SensorsRoute;
   "/settings": typeof SettingsRoute;
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | "/login"
     | "/outbreaks"
     | "/patients"
+    | "/reset-password"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | "/login"
     | "/outbreaks"
     | "/patients"
+    | "/reset-password"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | "/login"
     | "/outbreaks"
     | "/patients"
+    | "/reset-password"
     | "/scan"
     | "/sensors"
     | "/settings"
@@ -255,6 +267,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute;
   OutbreaksRoute: typeof OutbreaksRoute;
   PatientsRoute: typeof PatientsRoute;
+  ResetPasswordRoute: typeof ResetPasswordRoute;
   ScanRoute: typeof ScanRoute;
   SensorsRoute: typeof SensorsRoute;
   SettingsRoute: typeof SettingsRoute;
@@ -291,6 +304,13 @@ declare module "@tanstack/react-router" {
       path: "/scan";
       fullPath: "/scan";
       preLoaderRoute: typeof ScanRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/reset-password": {
+      id: "/reset-password";
+      path: "/reset-password";
+      fullPath: "/reset-password";
+      preLoaderRoute: typeof ResetPasswordRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/patients": {
@@ -417,6 +437,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OutbreaksRoute: OutbreaksRoute,
   PatientsRoute: PatientsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ScanRoute: ScanRoute,
   SensorsRoute: SensorsRoute,
   SettingsRoute: SettingsRoute,

@@ -10,6 +10,7 @@ function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [resetLink, setResetLink] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +28,8 @@ function ForgotPassword() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage("✅ Password reset link sent! Check your email.");
+        setMessage("✅ Reset link generated below.");
+        setResetLink(data.resetLink || "");
         setStudentId("");
       } else {
         setError(data.error || "Student ID not found");

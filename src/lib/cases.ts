@@ -1,4 +1,5 @@
 import type { Pathogen, Biomarker } from "@/data/pathogens";
+import { apiFetch } from "@/lib/apiClient";
 
 export interface ClinicalCase {
   id: string;
@@ -45,7 +46,7 @@ export function findCase(id: string): ClinicalCase | undefined {
 }
 
 async function saveCaseToBackend(c: ClinicalCase) {
-  await fetch(`${API_URL}/cases`, {
+  await apiFetch(`${API_URL}/cases`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -67,7 +68,7 @@ async function saveCaseToBackend(c: ClinicalCase) {
 }
 
 async function saveScanToBackend(c: ClinicalCase) {
-  await fetch(`${API_URL}/scans`, {
+  await apiFetch(`${API_URL}/scans`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -83,7 +84,7 @@ async function saveScanToBackend(c: ClinicalCase) {
 }
 
 async function updateCaseInBackend(id: string, patch: Partial<ClinicalCase>) {
-  await fetch(`${API_URL}/cases/${id}`, {
+  await apiFetch(`${API_URL}/cases/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(patch),

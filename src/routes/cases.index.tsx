@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState, useMemo } from "react";
 import { Inbox, Search, Plus, Loader2, FlaskConical, User, Calendar } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -19,8 +20,8 @@ function Page() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/cases`).then(r => r.json()),
-      fetch(`${API_URL}/scans`).then(r => r.json()),
+      apiFetch(`${API_URL}/cases`).then(r => r.json()),
+      apiFetch(`${API_URL}/scans`).then(r => r.json()),
     ]).then(([c, s]) => {
       setCases(Array.isArray(c) ? c : []);
       setScans(Array.isArray(s) ? s : []);

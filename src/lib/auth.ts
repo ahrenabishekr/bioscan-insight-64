@@ -3,7 +3,8 @@ const API_URL = "http://localhost:3001/api";
 export interface SessionUser {
   email: string;
   name: string;
-  role: "Doctor" | "Lab Technician" | "Student";
+  role: "admin" | "doctor" | "technician";
+  student_id?: string;
   staffId?: string;
   department?: string;
   hospital?: string;

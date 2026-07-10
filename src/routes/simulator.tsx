@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { Activity, Play, Square, AlertTriangle, CheckCircle, FlaskConical, ArrowRight, Loader2, Bell } from "lucide-react";
 import { getSession } from "@/lib/auth";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -50,7 +51,7 @@ function Page() {
   async function runBiomarkerMatch(biomarker) {
     setMatchLoading(true);
     try {
-      const res = await fetch(`${API_URL}/scan/biomarker`, {
+      const res = await apiFetch(`${API_URL}/scan/biomarker`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ biomarker }),
@@ -101,7 +102,7 @@ function Page() {
     setSaving(true);
     try {
       const top = matches[0];
-      const res = await fetch(`${API_URL}/scans/full`, {
+      const res = await apiFetch(`${API_URL}/scans/full`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

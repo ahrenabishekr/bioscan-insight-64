@@ -3,6 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown, Minus, Activity, AlertTriangle, Search, Filter, Loader2 } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -20,7 +21,7 @@ function Page() {
   const [patients, setPatients] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/scans`)
+    apiFetch(`${API_URL}/scans`)
       .then(r => r.json())
       .then(data => {
         setScans(data);

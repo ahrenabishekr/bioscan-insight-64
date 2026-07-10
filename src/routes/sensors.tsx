@@ -3,6 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import React, { useEffect, useState, useRef } from "react";
 import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { apiFetch } from "@/lib/apiClient";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -58,7 +59,7 @@ function Page() {
     if (!newSensor.name) return;
     setAdding(true);
     try {
-      await fetch(`${API_URL}/sensors`, {
+      await apiFetch(`${API_URL}/sensors`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...newSensor, status: "active" }),
@@ -72,7 +73,7 @@ function Page() {
   async function loadSensors() {
     setLoading(true);
     try {
-      const r = await fetch(`${API_URL}/sensors`);
+      const r = await apiFetch(`${API_URL}/sensors`);
       const data = await r.json();
       setSensors(Array.isArray(data) ? data : []);
       if (data.length > 0) setSelected(data[0]);
@@ -80,7 +81,7 @@ function Page() {
   }
 
   async function loadReadings(id: number) {
-    const r = await fetch(`${API_URL}/sensors/${id}/readings`);
+    const r = await apiFetch(`${API_URL}/sensors/${id}/readings`);
     const data = await r.json();
     setReadings(Array.isArray(data) ? data.reverse() : []);
   }
@@ -90,7 +91,7 @@ function Page() {
     if (isNaN(value) || !selected) return;
     setSimulating(true);
     try {
-      const r = await fetch(`${API_URL}/sensors/${selected.id}/reading`, {
+      const r = await apiFetch(`${API_URL}/sensors/${selected.id}/reading`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reading: value, unit: selected.reading_unit || "nM" }),
@@ -116,7 +117,8 @@ function Page() {
       setLiveStream(false);
     } else {
       if (!selected) return;
-      const es = new EventSource(`${API_URL}/sensors/${selected.id}/live`);
+      const sid = getSession()?.student_id || "";
+      const es = new EventSource(`${API_URL}/sensors/${selected.id}/live?student_id=${encodeURIComponent(sid)}`);
       es.onmessage = (e) => {
         const data = JSON.parse(e.data);
         setReadings(prev => [...prev.slice(-49), { ...data, created_at: data.timestamp }]);
@@ -130,7 +132,7 @@ function Page() {
 
   async function calibrate() {
     if (!selected) return;
-    await fetch(`${API_URL}/sensors/${selected.id}/calibrate`, { method: "PATCH" });
+    await apiFetch(`${API_URL}/sensors/${selected.id}/calibrate`, { method: "PATCH" });
     setSelected((s: any) => ({ ...s, last_calibrated: new Date().toISOString(), calibration_drift: 0 }));
     alert("Sensor calibrated ✅");
   }

@@ -14,7 +14,8 @@ function LoginPage() {
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<SessionUser["role"]>("Doctor");
+  const [role, setRole] = useState<SessionUser["role"]>("doctor");
+  const ROLE_LABELS: Record<SessionUser["role"], string> = { doctor: "Doctor", technician: "Lab Technician", admin: "Admin" };
   const [isRegister, setIsRegister] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +69,7 @@ function LoginPage() {
           throw new Error(d.error || "Registration failed");
         }
         const data = await res.json();
-        setSession({ email: data.email, name: data.name || studentId, role });
+        setSession({ email: data.email, name: data.name || studentId, role, student_id: data.student_id || studentId });
         navigate({ to: "/dashboard" });
       } else {
         // Login
@@ -82,7 +83,7 @@ function LoginPage() {
           throw new Error(d.error || "Invalid credentials");
         }
         const data = await res.json();
-        setSession({ email: data.email, name: data.name || studentId, role: data.role || role });
+        setSession({ email: data.email, name: data.name || studentId, role: data.role || role, student_id: data.student_id || studentId });
         navigate({ to: "/dashboard" });
       }
     } catch (e: unknown) {
@@ -150,10 +151,10 @@ function LoginPage() {
             <>
               <label className="block mt-4 text-xs font-medium">Role</label>
               <div className="mt-1 grid grid-cols-3 gap-2">
-                {(["Doctor", "Lab Technician", "Student"] as const).map((r) => (
+                {(["doctor", "technician"] as const).map((r) => (
                   <button type="button" key={r} onClick={() => setRole(r)}
                     className={`h-9 rounded-md border text-xs font-medium ${role === r ? "border-primary bg-primary-muted text-primary" : "border-input text-muted-foreground"}`}>
-                    {r}
+                    {ROLE_LABELS[r]}
                   </button>
                 ))}
               </div>
