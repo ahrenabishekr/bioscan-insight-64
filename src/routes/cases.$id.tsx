@@ -1,10 +1,11 @@
-import { createFileRoute, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, useParams, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill, LabRow } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { findPathogen } from "@/data/pathogens";
 import { Printer, Mail, Save, Download, Loader2, CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
 import { apiFetch } from "@/lib/apiClient";
+import { getSession } from "@/lib/auth";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -15,7 +16,11 @@ export const Route = createFileRoute("/cases/$id")({
 
 function Page() {
   const { id } = useParams({ from: "/cases/$id" });
+  const navigate = useNavigate();
+  const session = getSession();
+  const canEdit = session?.role === "doctor" || session?.role === "admin";
   const [c, setC] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const [scans, setScans] = useState<any[]>([]);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
@@ -119,7 +124,6 @@ function Page() {
 
   async function shareEmail() {
     if (!c || scans.length === 0) return alert("No scan data to email.");
-    const session = (await import("@/lib/auth")).getSession();
     const toEmail = session?.email || "rahrenabishek2006@gmail.com";
     const s = scans[0];
     await apiFetch(`${API_URL}/email-report`, {
@@ -139,6 +143,20 @@ function Page() {
     }).then(() => alert("Report emailed ✅")).catch(() => alert("Email failed"));
   }
 
+  async function deleteCase() {
+    if (!confirm("Delete this case permanently? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const res = await apiFetch(`${API_URL}/cases/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      navigate({ to: "/cases" });
+    } catch {
+      alert("Delete failed — you may not have permission.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   if (loading) return <div className="p-6 text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="size-4 animate-spin" /> Loading case…</div>;
   if (!c) return <div className="p-6 text-sm">Case not found. <Link to="/cases" className="text-primary">Back to cases</Link>.</div>;
 
@@ -155,9 +173,16 @@ function Page() {
             <button onClick={() => window.print()} className="h-9 px-3 text-xs border border-border rounded-md inline-flex items-center gap-1.5 hover:bg-muted">
               <Printer className="size-3.5" /> Print
             </button>
-            <button onClick={shareEmail} className="h-9 px-3 text-xs border border-border rounded-md inline-flex items-center gap-1.5 hover:bg-muted">
-              <Mail className="size-3.5" /> Email
-            </button>
+            {canEdit && (
+              <button onClick={shareEmail} className="h-9 px-3 text-xs border border-border rounded-md inline-flex items-center gap-1.5 hover:bg-muted">
+                <Mail className="size-3.5" /> Email
+              </button>
+            )}
+            {canEdit && (
+              <button onClick={deleteCase} disabled={deleting} className="h-9 px-3 text-xs border border-red-300 text-red-600 rounded-md inline-flex items-center gap-1.5 hover:bg-red-50 disabled:opacity-50">
+                {deleting ? "Deleting…" : "Delete Case"}
+              </button>
+            )}
           </div>
         }
       />
@@ -202,17 +227,23 @@ function Page() {
 
         <div className="clinical-card p-5 no-print">
           <h2 className="text-sm font-semibold mb-2">Clinical notes</h2>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4}
-            placeholder="Add follow-up, response to therapy, additional findings…"
-            className="w-full p-3 text-sm border border-input rounded-md bg-background" />
-          <button onClick={saveNotes} disabled={saving}
-            className="mt-2 h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-60">
-            {saving ? <><Loader2 className="size-3 animate-spin" /> Saving…</> : <><Save className="size-3.5" /> Save notes</>}
-          </button>
+          {canEdit ? (
+            <>
+              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4}
+                placeholder="Add follow-up, response to therapy, additional findings…"
+                className="w-full p-3 text-sm border border-input rounded-md bg-background" />
+              <button onClick={saveNotes} disabled={saving}
+                className="mt-2 h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-60">
+                {saving ? <><Loader2 className="size-3 animate-spin" /> Saving…</> : <><Save className="size-3.5" /> Save notes</>}
+              </button>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{notes || "No notes yet."}</p>
+          )}
         </div>
 
         {/* Treatment Outcome */}
-        {c.status === "open" && (
+        {c.status === "open" && canEdit && (
           <div className="clinical-card p-5 no-print border-amber-200">
             <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <CheckCircle className="size-4 text-emerald-500" /> Close Case &amp; Record Outcome
