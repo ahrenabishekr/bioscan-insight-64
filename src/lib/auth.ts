@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001/api";
+const API_URL = "https://chemosense-backend.onrender.com/api";
 
 export interface SessionUser {
   email: string;
@@ -46,12 +46,13 @@ export async function loginWithBackend(
     });
 
     if (res.ok) {
-      // User exists in DB — use their data
+      // User exists in DB — trust backend's role and student_id, not the param
       const data = await res.json();
       const user: SessionUser = {
         email: data.email,
         name: data.name,
-        role: role,
+        role: data.role,
+        student_id: data.student_id,
       };
       setSession(user);
       return user;
