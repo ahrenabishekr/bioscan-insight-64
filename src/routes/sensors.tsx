@@ -269,33 +269,48 @@ function Page() {
 
                 {/* Simulate reading */}
                 <div className="clinical-card p-4">
-                  <h3 className="text-sm font-semibold mb-3">Inject Reading</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    <input value={simValue} onChange={e => setSimValue(e.target.value)} type="number"
-                      placeholder={`Value in ${selected.reading_unit || "nM"}`}
-                      className="flex-1 min-w-32 h-9 px-3 text-sm border border-input rounded-md bg-background" />
-                    {canWrite && (
-                      <button onClick={() => sendReading()} disabled={simulating || !simValue}
-                        className="h-9 px-4 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-50">
-                        <Activity className="size-3.5" /> Send
+                  {canWrite ? (
+                    <>
+                      <h3 className="text-sm font-semibold mb-3">Inject Reading</h3>
+                      <div className="flex gap-2 flex-wrap">
+                        <input value={simValue} onChange={e => setSimValue(e.target.value)} type="number"
+                          placeholder={`Value in ${selected.reading_unit || "nM"}`}
+                          className="flex-1 min-w-32 h-9 px-3 text-sm border border-input rounded-md bg-background" />
+                        <button onClick={() => sendReading()} disabled={simulating || !simValue}
+                          className="h-9 px-4 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-50">
+                          <Activity className="size-3.5" /> Send
+                        </button>
+                        <button onClick={toggleLiveStream}
+                          className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
+                          {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
+                        </button>
+                        <button onClick={calibrate}
+                          className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                          <Wrench className="size-3.5" /> Calibrate
+                        </button>
+                      </div>
+                      <div className="mt-2 text-[10px] text-muted-foreground">
+                        LOD: <span className="font-mono text-amber-600">{lodThreshold} nM</span> · 
+                        QS threshold: <span className="font-mono text-destructive">{qsThreshold} nM</span> · 
+                        Last calibrated: {selected.last_calibrated ? new Date(selected.last_calibrated).toLocaleDateString() : "—"}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-sm font-semibold mb-2">Live Monitoring</h3>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        This view updates in real time. Manual readings and calibration are managed by lab technicians and doctors.
+                      </p>
+                      <button onClick={toggleLiveStream}
+                        className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
+                        {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
                       </button>
-                    )}
-                    <button onClick={toggleLiveStream}
-                      className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
-                      {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
-                    </button>
-                    {canWrite && (
-                      <button onClick={calibrate}
-                        className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
-                        <Wrench className="size-3.5" /> Calibrate
-                      </button>
-                    )}
-                  </div>
-                  <div className="mt-2 text-[10px] text-muted-foreground">
-                    LOD: <span className="font-mono text-amber-600">{lodThreshold} nM</span> · 
-                    QS threshold: <span className="font-mono text-destructive">{qsThreshold} nM</span> · 
-                    Last calibrated: {selected.last_calibrated ? new Date(selected.last_calibrated).toLocaleDateString() : "—"}
-                  </div>
+                      <div className="mt-2 text-[10px] text-muted-foreground">
+                        LOD: <span className="font-mono text-amber-600">{lodThreshold} nM</span> · 
+                        QS threshold: <span className="font-mono text-destructive">{qsThreshold} nM</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
