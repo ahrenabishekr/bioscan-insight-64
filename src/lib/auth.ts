@@ -3,7 +3,7 @@ const API_URL = "https://chemosense-backend.onrender.com/api";
 export interface SessionUser {
   email: string;
   name: string;
-  role: "admin" | "doctor" | "technician";
+  role: "admin" | "doctor" | "technician" | "student";
   student_id?: string;
   staffId?: string;
   department?: string;
