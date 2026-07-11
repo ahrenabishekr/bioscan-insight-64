@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import {
   Outlet,
   Link,
@@ -73,7 +75,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" },
       { title: "ChemoSense — Selective Chemosensors for Pathogen Detection" },
       { name: "description", content: "Rapid identification of pathogenic bacteria via metabolite, toxin, and quorum-sensing biomarkers." },
       { name: "author", content: "ChemoSense" },
@@ -114,6 +116,35 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    (async () => {
+      const { StatusBar, Style } = await import("@capacitor/status-bar");
+      const { SplashScreen } = await import("@capacitor/splash-screen");
+      const { App } = await import("@capacitor/app");
+
+      try {
+        await StatusBar.setBackgroundColor({ color: "#0d9488" });
+        await StatusBar.setStyle({ style: Style.Dark });
+        await StatusBar.setOverlaysWebView({ overlay: false });
+      } catch {}
+
+      try {
+        await SplashScreen.hide();
+      } catch {}
+
+      App.addListener("backButton", () => {
+        if (window.history.length > 1) {
+          router.history.back();
+        } else {
+          App.exitApp();
+        }
+      });
+    })();
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
