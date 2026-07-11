@@ -9,6 +9,12 @@ export interface SessionUser {
   department?: string;
   hospital?: string;
   phone?: string;
+  token?: string;
+}
+
+export function authHeaders(): Record<string, string> {
+  const session = getSession();
+  return session?.token ? { Authorization: `Bearer ${session.token}` } : {};
 }
 
 const KEY = "chemosense.session";
