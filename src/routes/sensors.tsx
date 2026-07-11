@@ -20,6 +20,7 @@ function Page() {
   const [selected, setSelected] = useState<any>(null);
   const [readings, setReadings] = useState<any[]>([]);
   const [simValue, setSimValue] = useState("");
+  const [pathogenMatch, setPathogenMatch] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [autoSim, setAutoSim] = useState(false);
@@ -109,6 +110,7 @@ function Page() {
       };
       setReadings(prev => [...prev, newReading]);
       setSelected((s: any) => ({ ...s, last_reading: value }));
+      setPathogenMatch(data.pathogenMatch || null);
       if (!val) setSimValue("");
     } finally { setSimulating(false); }
   }
@@ -133,11 +135,20 @@ function Page() {
     }
   }
 
+  const [calibrating, setCalibrating] = useState(false);
+
   async function calibrate() {
     if (!selected) return;
-    await apiFetch(`${API_URL}/sensors/${selected.id}/calibrate`, { method: "PATCH" });
-    setSelected((s: any) => ({ ...s, last_calibrated: new Date().toISOString(), calibration_drift: 0 }));
-    alert("Sensor calibrated ✅");
+    setCalibrating(true);
+    try {
+      const r = await apiFetch(`${API_URL}/sensors/${selected.id}/calibrate`, { method: "PATCH" });
+      const data = await r.json();
+      await new Promise(resolve => setTimeout(resolve, 1200)); // realistic calibration cycle delay
+      setSelected((s: any) => ({ ...s, last_calibrated: new Date().toISOString(), calibration_drift: 0 }));
+      alert(`Sensor calibrated ✅\nDrift corrected: ${Number(data.drift_before).toFixed(2)} nM → 0.00 nM`);
+    } finally {
+      setCalibrating(false);
+    }
   }
 
   const lastReading = readings[readings.length - 1];
@@ -284,9 +295,9 @@ function Page() {
                           className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
                           {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
                         </button>
-                        <button onClick={calibrate}
-                          className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
-                          <Wrench className="size-3.5" /> Calibrate
+                        <button onClick={calibrate} disabled={calibrating}
+                          className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50">
+                          <Wrench className={`size-3.5 ${calibrating ? "animate-spin" : ""}`} /> {calibrating ? "Calibrating…" : "Calibrate"}
                         </button>
                       </div>
                       <div className="mt-2 text-[10px] text-muted-foreground">
@@ -294,6 +305,17 @@ function Page() {
                         QS threshold: <span className="font-mono text-destructive">{qsThreshold} nM</span> · 
                         Last calibrated: {selected.last_calibrated ? new Date(selected.last_calibrated).toLocaleDateString() : "—"}
                       </div>
+                      {pathogenMatch && (
+                        <div className="mt-3 p-3 rounded-md border border-primary/30 bg-primary-muted">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className="text-xs font-semibold italic">{pathogenMatch.pathogenName}</span>
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded border border-primary/40 text-primary">
+                              {pathogenMatch.confidence} confidence
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">{pathogenMatch.reasoning}</p>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>
