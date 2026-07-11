@@ -73,10 +73,14 @@ function Page() {
             <label className="block sm:col-span-2">
               <span className="text-xs font-medium">Role</span>
               <div className="mt-1 grid grid-cols-3 gap-2">
-                {(["Doctor", "Lab Technician", "Student"] as const).map((r) => (
-                  <button key={r} type="button" onClick={() => update("role", r)}
-                    className={`h-9 rounded-md border text-xs font-medium ${u.role === r ? "border-primary bg-primary-muted text-primary" : "border-input text-muted-foreground"}`}>
-                    {r}
+                {([
+                  { value: "doctor", label: "Doctor" },
+                  { value: "technician", label: "Lab Technician" },
+                  { value: "student", label: "Student" },
+                ] as const).map((r) => (
+                  <button key={r.value} type="button" onClick={() => update("role", r.value)}
+                    className={`h-9 rounded-md border text-xs font-medium ${u.role === r.value ? "border-primary bg-primary-muted text-primary" : "border-input text-muted-foreground"}`}>
+                    {r.label}
                   </button>
                 ))}
               </div>

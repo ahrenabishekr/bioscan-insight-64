@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Cpu, Activity, Zap, AlertTriangle, CheckCircle, RefreshCw, Plus, Wrench, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { apiFetch } from "@/lib/apiClient";
+import { getSession } from "@/lib/auth";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/sensors")({
 });
 
 function Page() {
+  const session = getSession();
+  const canWrite = session?.role !== "student";
   const [sensors, setSensors] = useState<any[]>([]);
   const [selected, setSelected] = useState<any>(null);
   const [readings, setReadings] = useState<any[]>([]);
@@ -146,9 +149,11 @@ function Page() {
     <>
       <PageHeader title="Sensors" subtitle="Live chemosensor readings & QS threshold monitoring"
         actions={
-          <button onClick={() => setShowAdd(true)} className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5">
-            <Plus className="size-3.5" /> Add sensor
-          </button>
+          canWrite ? (
+            <button onClick={() => setShowAdd(true)} className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5">
+              <Plus className="size-3.5" /> Add sensor
+            </button>
+          ) : null
         }
       />
       <div className="px-6 py-6 max-w-6xl">
@@ -269,18 +274,22 @@ function Page() {
                     <input value={simValue} onChange={e => setSimValue(e.target.value)} type="number"
                       placeholder={`Value in ${selected.reading_unit || "nM"}`}
                       className="flex-1 min-w-32 h-9 px-3 text-sm border border-input rounded-md bg-background" />
-                    <button onClick={() => sendReading()} disabled={simulating || !simValue}
-                      className="h-9 px-4 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-50">
-                      <Activity className="size-3.5" /> Send
-                    </button>
+                    {canWrite && (
+                      <button onClick={() => sendReading()} disabled={simulating || !simValue}
+                        className="h-9 px-4 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 disabled:opacity-50">
+                        <Activity className="size-3.5" /> Send
+                      </button>
+                    )}
                     <button onClick={toggleLiveStream}
                       className={`h-9 px-4 text-xs rounded-md border inline-flex items-center gap-1.5 ${liveStream ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-border text-muted-foreground"}`}>
                       {liveStream ? <><span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Live ON</> : <>▶ Start Live</>}
                     </button>
-                    <button onClick={calibrate}
-                      className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
-                      <Wrench className="size-3.5" /> Calibrate
-                    </button>
+                    {canWrite && (
+                      <button onClick={calibrate}
+                        className="h-9 px-3 text-xs rounded-md border border-border inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                        <Wrench className="size-3.5" /> Calibrate
+                      </button>
+                    )}
                   </div>
                   <div className="mt-2 text-[10px] text-muted-foreground">
                     LOD: <span className="font-mono text-amber-600">{lodThreshold} nM</span> · 
