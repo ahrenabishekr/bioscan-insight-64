@@ -71,6 +71,7 @@ function Page() {
 
   async function generateReport(r: any) {
     const u = getSession();
+    const isStudent = u?.role === "student";
     setSaving(r.pathogen.id);
     try {
       const res = await apiFetch(`${API_URL}/scans/full`, {
@@ -84,11 +85,14 @@ function Page() {
           scanned_by: u?.name ?? "Unknown",
           result: "positive",
           notes: mode === "symptom" ? text : bio,
+          is_practice: isStudent,
         }),
       });
       const data = await res.json();
       if (data.case_id) {
         navigate({ to: "/cases/$id", params: { id: String(data.case_id) } });
+      } else if (data.practice) {
+        alert("Practice scan saved to your History. No real case was created.");
       }
     } catch {
       setError("Failed to save scan. Try again.");

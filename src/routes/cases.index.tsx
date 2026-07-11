@@ -3,6 +3,7 @@ import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
 import { useEffect, useState, useMemo } from "react";
 import { Inbox, Search, Plus, Loader2, FlaskConical, User, Calendar } from "lucide-react";
 import { apiFetch } from "@/lib/apiClient";
+import { getSession } from "@/lib/auth";
 
 const API_URL = "https://chemosense-backend.onrender.com/api";
 
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/cases/")({
 });
 
 function Page() {
+  const session = getSession();
+  const isStudent = session?.role === "student";
   const [cases, setCases] = useState<any[]>([]);
   const [scans, setScans] = useState<any[]>([]);
   const [search, setSearch] = useState("");
@@ -66,15 +69,22 @@ function Page() {
   return (
     <>
       <PageHeader
-        title="Cases"
-        subtitle={`${cases.length} total · ${openCount} open · ${criticalCount} critical`}
+        title={isStudent ? "Case Studies" : "Cases"}
+        subtitle={isStudent
+          ? `Learn from ${cases.length} real clinical cases — pathogen presentations, biomarkers, and outcomes.`
+          : `${cases.length} total · ${openCount} open · ${criticalCount} critical`}
         actions={
           <Link to="/scan" className="h-9 px-3 text-xs rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 font-medium">
-            <Plus className="size-3.5" /> New scan
+            <Plus className="size-3.5" /> {isStudent ? "Practice scan" : "New scan"}
           </Link>
         }
       />
       <div className="px-4 md:px-6 py-6 max-w-5xl">
+        {isStudent && (
+          <div className="clinical-card p-3 mb-4 bg-primary-muted border-primary/20 text-xs text-muted-foreground">
+            These are real clinical cases from doctors and technicians, shown for learning. View-only — practice scans you run don't appear here.
+          </div>
+        )}
 
         {/* Summary strips */}
         <div className="grid grid-cols-3 gap-3 mb-5">
