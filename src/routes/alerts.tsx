@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck, AlertTriangle, Info } from "lucide-react";
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/alerts")({
 });
 
 function Page() {
+  const navigate = useNavigate();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +22,9 @@ function Page() {
     setLoading(true);
     try {
       const r = await apiFetch(`${API_URL}/alerts`);
-      setAlerts(await r.json());
+      if (r.status === 401) { navigate({ to: "/login" }); return; }
+      const data = await r.json();
+      setAlerts(Array.isArray(data) ? data : []);
     } finally { setLoading(false); }
   }
 

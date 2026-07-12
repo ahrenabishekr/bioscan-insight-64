@@ -69,7 +69,7 @@ function LoginPage() {
           throw new Error(d.error || "Registration failed");
         }
         const data = await res.json();
-        setSession({ email: data.email, name: data.name || studentId, role, student_id: data.student_id || studentId });
+        setSession({ email: data.email, name: data.name || studentId, role, student_id: data.student_id || studentId, token: data.token });
         navigate({ to: "/dashboard" });
       } else {
         // Login
@@ -83,7 +83,7 @@ function LoginPage() {
           throw new Error(d.error || "Invalid credentials");
         }
         const data = await res.json();
-        setSession({ email: data.email, name: data.name || studentId, role: data.role || role, student_id: data.student_id || studentId });
+        setSession({ email: data.email, name: data.name || studentId, role: data.role || role, student_id: data.student_id || studentId, token: data.token });
         navigate({ to: "/dashboard" });
       }
     } catch (e: unknown) {
