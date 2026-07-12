@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, RiskPill } from "@/components/AppShell";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { pathogens } from "@/data/pathogens";
-import { FlaskConical, Zap, Shield, Activity, ChevronRight } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
+import { FlaskConical, Zap, Shield, Activity, ChevronRight, Sparkles, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/compare")({
   component: () => <AppShell><Page /></AppShell>,
@@ -17,11 +18,56 @@ const RISK_COLOR: Record<string, string> = {
   Low: "bg-emerald-400",
 };
 
+type AIComparison = {
+  summary: string;
+  keyDifferentiator: string;
+  coInfectionRisk: string;
+  treatmentNote: string;
+};
+
 function Page() {
   const [a, setA] = useState(pathogens[0].id);
   const [b, setB] = useState(pathogens[1].id);
   const A = pathogens.find((p) => p.id === a)!;
   const B = pathogens.find((p) => p.id === b)!;
+
+  const [aiComparison, setAiComparison] = useState<AIComparison | null>(null);
+  const [aiSource, setAiSource] = useState<"ai" | "fallback" | null>(null);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const cacheRef = useRef<Record<string, { comparison: AIComparison; source: "ai" | "fallback" }>>({});
+
+  useEffect(() => {
+    const key = [a, b].sort().join("::");
+    if (cacheRef.current[key]) {
+      setAiComparison(cacheRef.current[key].comparison);
+      setAiSource(cacheRef.current[key].source);
+      return;
+    }
+    let cancelled = false;
+    setLoadingAI(true);
+    setAiComparison(null);
+    apiFetch("/api/compare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pathogenAId: a, pathogenBId: b }),
+    })
+      .then((data: any) => {
+        if (cancelled) return;
+        cacheRef.current[key] = { comparison: data.comparison, source: data.source };
+        setAiComparison(data.comparison);
+        setAiSource(data.source);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAiComparison(null);
+          setAiSource(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAI(false);
+      });
+    return () => { cancelled = true; };
+  }, [a, b]);
 
   return (
     <>
@@ -62,7 +108,6 @@ function Page() {
                 <p className="text-xs text-muted-foreground leading-relaxed">{p.summary}</p>
               </div>
 
-              {/* Risk score bar */}
               <div className="px-5 pb-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Risk score</span>
@@ -74,7 +119,6 @@ function Page() {
                 </div>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-3 divide-x divide-border border-t border-border">
                 {[
                   { n: p.biomarkers.length, l: "Biomarkers", icon: FlaskConical },
@@ -89,6 +133,46 @@ function Page() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* AI Clinical Comparison */}
+        <div className="clinical-card overflow-hidden mb-6 border-l-4 border-l-violet-400">
+          <div className="px-5 py-3 border-b border-border bg-violet-50/50 flex items-center gap-2">
+            <Sparkles className="size-4 text-violet-500" />
+            <h3 className="text-sm font-semibold">AI Clinical Comparison</h3>
+            {aiSource === "fallback" && (
+              <span className="text-[10px] text-muted-foreground ml-auto">(offline reasoning)</span>
+            )}
+          </div>
+          <div className="p-5">
+            {loadingAI && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" /> Analyzing clinical profiles…
+              </div>
+            )}
+            {!loadingAI && aiComparison && (
+              <div className="space-y-3 text-sm">
+                <p className="leading-relaxed">{aiComparison.summary}</p>
+                <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                  <div className="bg-muted/30 rounded-md p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Key differentiator</div>
+                    <div className="text-xs leading-relaxed">{aiComparison.keyDifferentiator}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-md p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Co-infection risk</div>
+                    <div className="text-xs leading-relaxed">{aiComparison.coInfectionRisk}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-md p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Treatment note</div>
+                    <div className="text-xs leading-relaxed">{aiComparison.treatmentNote}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {!loadingAI && !aiComparison && (
+              <p className="text-xs text-muted-foreground">AI comparison unavailable right now.</p>
+            )}
+          </div>
         </div>
 
         {/* Section comparisons */}
@@ -147,7 +231,6 @@ function Page() {
           </div>
         ))}
 
-        {/* Links to full profiles */}
         <div className="grid md:grid-cols-2 gap-4 mt-2">
           {[A, B].map((p, idx) => (
             <Link key={p.id} to="/library/$id" params={{ id: p.id }}

@@ -220,9 +220,23 @@ async function run(){
 
     // ── TC095-100: Backend APIs & Logout ──
     try{await driver.get(BACKEND_URL+"/health");await sleep(2000);const b=await txt(driver);if(b.includes("healthy"))record("TC095","Backend health API healthy","PASS");else record("TC095","Backend health API healthy","FAIL");}catch(e){record("TC095","Backend health API healthy","FAIL",e.message);}
-    try{await driver.get(BACKEND_URL+"/api/dashboard");await sleep(2000);const b=await txt(driver);if(b.includes("total_scans"))record("TC096","Backend dashboard API returns stats","PASS");else record("TC096","Backend dashboard API returns stats","FAIL");}catch(e){record("TC096","Backend dashboard API returns stats","FAIL",e.message);}
-    try{await driver.get(BACKEND_URL+"/api/scans");await sleep(2000);const b=await txt(driver);if(b.includes("pathogen_name"))record("TC097","Backend scans API returns records","PASS");else record("TC097","Backend scans API returns records","FAIL");}catch(e){record("TC097","Backend scans API returns records","FAIL",e.message);}
-    try{await driver.get(BACKEND_URL+"/api/patients");await sleep(2000);const b=await txt(driver);if(b.includes("patient_id")||b.includes("scan_count"))record("TC098","Backend patients API returns data","PASS");else record("TC098","Backend patients API returns data","FAIL");}catch(e){record("TC098","Backend patients API returns data","FAIL",e.message);}
+    // TC096-098 now require auth, so navigate back into the app first (to be on
+    // the right origin for localStorage) and fetch with the session's JWT token.
+    async function authedFetchIncludes(path, needle){
+      await goTo(driver,"/dashboard");
+      const result = await driver.executeAsyncScript(function(backendUrl, apiPath, callback){
+        var session = JSON.parse(localStorage.getItem("chemosense.session") || "null");
+        var token = session && session.token;
+        fetch(backendUrl + apiPath, { headers: token ? { "Authorization": "Bearer " + token } : {} })
+          .then(function(r){ return r.text(); })
+          .then(function(t){ callback(t); })
+          .catch(function(e){ callback("FETCH_ERROR:" + e.message); });
+      }, BACKEND_URL, path);
+      return result.includes(needle);
+    }
+    try{if(await authedFetchIncludes("/api/dashboard","total_scans"))record("TC096","Backend dashboard API returns stats","PASS");else record("TC096","Backend dashboard API returns stats","FAIL");}catch(e){record("TC096","Backend dashboard API returns stats","FAIL",e.message);}
+    try{if(await authedFetchIncludes("/api/scans","pathogen_name"))record("TC097","Backend scans API returns records","PASS");else record("TC097","Backend scans API returns records","FAIL");}catch(e){record("TC097","Backend scans API returns records","FAIL",e.message);}
+    try{const p1=await authedFetchIncludes("/api/patients","patient_id");const p2=p1?true:await authedFetchIncludes("/api/patients","scan_count");if(p1||p2)record("TC098","Backend patients API returns data","PASS");else record("TC098","Backend patients API returns data","FAIL");}catch(e){record("TC098","Backend patients API returns data","FAIL",e.message);}
     try{await driver.get(BACKEND_URL+"/api/outbreaks");await sleep(2000);const b=await txt(driver);if(b.includes("pathogen_name")||b.includes("[]")||b.includes("[{"))record("TC099","Backend outbreaks API returns data","PASS");else record("TC099","Backend outbreaks API returns data","FAIL");}catch(e){record("TC099","Backend outbreaks API returns data","FAIL",e.message);}
     try{
       await goTo(driver,"/dashboard");

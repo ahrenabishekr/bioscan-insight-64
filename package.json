@@ -66,6 +66,7 @@
     "embla-carousel-react": "^8.6.0",
     "express": "^4.22.2",
     "input-otp": "^1.4.2",
+    "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.575.0",
     "mysql2": "^3.22.3",
@@ -91,6 +92,8 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "appium": "^3.5.2",
+    "appium-uiautomator2-driver": "^8.1.0",
     "chromedriver": "^150.0.1",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
@@ -104,6 +107,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
+    "webdriverio": "^9.29.1",
     "xlsx": "^0.18.5"
   }
 }

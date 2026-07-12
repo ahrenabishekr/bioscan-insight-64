@@ -2,7 +2,9 @@ import { createFileRoute, useParams, Link, notFound } from "@tanstack/react-rout
 import { AppShell, PageHeader, RiskPill, LabRow } from "@/components/AppShell";
 import { findPathogen } from "@/data/pathogens";
 import { findSensor } from "@/data/sensors";
-import { ChevronLeft } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
+import { useState } from "react";
+import { ChevronLeft, Sparkles, Loader2, Send } from "lucide-react";
 
 export const Route = createFileRoute("/library/$id")({
   component: () => <AppShell><Page /></AppShell>,
@@ -15,9 +17,35 @@ export const Route = createFileRoute("/library/$id")({
   head: () => ({ meta: [{ title: "Pathogen — ChemoSense" }] }),
 });
 
+type QAEntry = { question: string; answer: string; source: "ai" | "fallback" };
+
 function Page() {
   const { id } = useParams({ from: "/library/$id" });
   const p = findPathogen(id)!;
+
+  const [question, setQuestion] = useState("");
+  const [asking, setAsking] = useState(false);
+  const [history, setHistory] = useState<QAEntry[]>([]);
+
+  const handleAsk = async () => {
+    const q = question.trim();
+    if (!q || asking) return;
+    setAsking(true);
+    try {
+      const data: any = await apiFetch(`/api/pathogens/${id}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+      setHistory((h) => [...h, { question: q, answer: data.answer, source: data.source }]);
+      setQuestion("");
+    } catch {
+      setHistory((h) => [...h, { question: q, answer: "Couldn't get an answer right now — please try again.", source: "fallback" }]);
+    } finally {
+      setAsking(false);
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -32,6 +60,40 @@ function Page() {
             <div className="text-base mt-1">{p.infectionSites.join(" · ")}</div>
           </div>
           <RiskPill level={p.riskLevel} />
+        </div>
+
+        {/* Ask AI */}
+        <div className="clinical-card overflow-hidden border-l-4 border-l-violet-400">
+          <div className="px-5 py-3 border-b border-border bg-violet-50/50 flex items-center gap-2">
+            <Sparkles className="size-4 text-violet-500" />
+            <h2 className="text-sm font-semibold">Ask AI about {p.shortName}</h2>
+          </div>
+          <div className="p-5 space-y-4">
+            {history.map((entry, i) => (
+              <div key={i} className="text-sm space-y-1.5">
+                <div className="font-medium text-xs text-muted-foreground">Q: {entry.question}</div>
+                <div className="leading-relaxed pl-3 border-l-2 border-violet-200">{entry.answer}</div>
+              </div>
+            ))}
+            <div className="flex items-center gap-2">
+              <input
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleAsk(); }}
+                placeholder="e.g. How urgent is empirical treatment if this is suspected?"
+                className="flex-1 h-10 border border-input rounded-md px-3 text-sm bg-background"
+                disabled={asking}
+              />
+              <button
+                onClick={handleAsk}
+                disabled={asking || !question.trim()}
+                className="h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {asking ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                Ask
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="clinical-card p-5">
