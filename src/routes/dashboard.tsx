@@ -47,21 +47,29 @@ function DashboardPage() {
   const today = useMemo(() => new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }), []);
 
   useEffect(() => {
-    
+    async function safeJson(promise: Promise<Response>, fallback: any) {
+      try {
+        const r = await promise;
+        if (r.status === 401) {
+          navigate({ to: "/login" });
+          return fallback;
+        }
+        if (!r.ok) return fallback;
+        const data = await r.json();
+        return data ?? fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
     // Load real stats from backend
-    apiFetch(`${API_URL}/dashboard`)
-      .then(r => r.json())
-      .then(setStats)
-      .catch(console.error);
+    safeJson(apiFetch(`${API_URL}/dashboard`), { total_scans: 0, total_cases: 0, active_sensors: 0, open_cases: 0, recent_scans: [] })
+      .then(setStats);
     // Load real cases from backend
-    apiFetch(`${API_URL}/cases`)
-      .then(r => r.json())
-      .then(setDbCases)
-      .catch(console.error);
-    apiFetch(`${API_URL}/scans`)
-      .then(r => r.json())
-      .then(setAllScans)
-      .catch(console.error);
+    safeJson(apiFetch(`${API_URL}/cases`), [])
+      .then((d) => setDbCases(Array.isArray(d) ? d : []));
+    safeJson(apiFetch(`${API_URL}/scans`), [])
+      .then((d) => setAllScans(Array.isArray(d) ? d : []));
   }, []);
 
   // Pathogen frequency chart data
