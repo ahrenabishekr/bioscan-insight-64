@@ -15,10 +15,10 @@ export const Route = createFileRoute("/simulator")({
 
 const SENSORS = [
   { id: "dpv", name: "DPV / Colorimetric", biomarker: "Pyocyanin", unit: "µM", lod: 0.5, danger: 5, color: "#0d9488" },
-  { id: "piezo", name: "Piezoelectric Aptamer", biomarker: "AIP-I (S. aureus)", unit: "nM", lod: 5, danger: 50, color: "#7c3aed" },
+  { id: "piezo", name: "Piezoelectric Aptamer", biomarker: "AIP-I", unit: "nM", lod: 5, danger: 50, color: "#7c3aed" },
   { id: "fret", name: "FRET Quantum-Dot", biomarker: "3-oxo-C12-HSL", unit: "nM", lod: 1, danger: 20, color: "#0891b2" },
   { id: "aunp", name: "AuNP Lateral Flow", biomarker: "Siderophores", unit: "ng/mL", lod: 0.5, danger: 10, color: "#d97706" },
-  { id: "mip", name: "MIP Capacitive", biomarker: "AIPs / Volatiles", unit: "nM", lod: 5, danger: 30, color: "#dc2626" },
+  { id: "mip", name: "MIP Capacitive", biomarker: "AIP-II", unit: "nM", lod: 5, danger: 30, color: "#dc2626" },
 ];
 
 function Page() {
