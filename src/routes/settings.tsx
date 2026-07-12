@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { getSession, setSession, type SessionUser } from "@/lib/auth";
+import { apiFetch } from "@/lib/apiClient";
 import { applyTheme, getTheme, type Theme } from "@/lib/theme";
 import { Sun, Moon, User, Lock, Loader2 } from "lucide-react";
 
@@ -45,10 +46,10 @@ function Page() {
     if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
     setPwLoading(true); setPwMsg("");
     try {
-      const res = await fetch("https://chemosense-backend.onrender.com/api/change-password", {
+      const res = await apiFetch("https://chemosense-backend.onrender.com/api/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),
+        body: JSON.stringify({ old_password: oldPw, new_password: newPw }),
       });
       const data = await res.json();
       if (data.success) { setPwMsg("Password changed successfully ✅"); setOldPw(""); setNewPw(""); }
@@ -135,10 +136,10 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
     if (!newPw || newPw.length < 6) { setPwMsg("Password must be at least 6 characters."); return; }
     setPwLoading(true); setPwMsg("");
     try {
-      const res = await fetch("https://chemosense-backend.onrender.com/api/change-password", {
+      const res = await apiFetch("https://chemosense-backend.onrender.com/api/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: u!.student_id, old_password: oldPw, new_password: newPw }),
+        body: JSON.stringify({ old_password: oldPw, new_password: newPw }),
       });
       const data = await res.json();
       if (data.success) { setPwMsg("Password changed successfully ✅"); setOldPw(""); setNewPw(""); }
