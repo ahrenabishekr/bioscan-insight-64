@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/apiClient";
 import { useState } from "react";
 import { ChevronLeft, Sparkles, Loader2, Send } from "lucide-react";
 
-export const Route = createFileRoute("/library/$id")({
+export const Route = createFileRoute("/library_/$id")({
   component: () => <AppShell><Page /></AppShell>,
   loader: ({ params }) => {
     const p = findPathogen(params.id);

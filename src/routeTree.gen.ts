@@ -26,7 +26,7 @@ import { Route as AnalyticsRouteImport } from "./routes/analytics";
 import { Route as AlertsRouteImport } from "./routes/alerts";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as CasesIndexRouteImport } from "./routes/cases.index";
-import { Route as LibraryIdRouteImport } from "./routes/library.$id";
+import { Route as LibraryIdRouteImport } from "./routes/library_.$id";
 import { Route as CasesIdRouteImport } from "./routes/cases.$id";
 
 const SimulatorRoute = SimulatorRouteImport.update({
@@ -115,9 +115,9 @@ const CasesIndexRoute = CasesIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any);
 const LibraryIdRoute = LibraryIdRouteImport.update({
-  id: "/$id",
-  path: "/$id",
-  getParentRoute: () => LibraryRoute,
+  id: "/library_/$id",
+  path: "/library/$id",
+  getParentRoute: () => rootRouteImport,
 } as any);
 const CasesIdRoute = CasesIdRouteImport.update({
   id: "/cases/$id",
@@ -133,7 +133,7 @@ export interface FileRoutesByFullPath {
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
   "/history": typeof HistoryRoute;
-  "/library": typeof LibraryRouteWithChildren;
+  "/library": typeof LibraryRoute;
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
@@ -154,7 +154,7 @@ export interface FileRoutesByTo {
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
   "/history": typeof HistoryRoute;
-  "/library": typeof LibraryRouteWithChildren;
+  "/library": typeof LibraryRoute;
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
@@ -176,7 +176,7 @@ export interface FileRoutesById {
   "/dashboard": typeof DashboardRoute;
   "/forgot-password": typeof ForgotPasswordRoute;
   "/history": typeof HistoryRoute;
-  "/library": typeof LibraryRouteWithChildren;
+  "/library": typeof LibraryRoute;
   "/login": typeof LoginRoute;
   "/outbreaks": typeof OutbreaksRoute;
   "/patients": typeof PatientsRoute;
@@ -186,7 +186,7 @@ export interface FileRoutesById {
   "/settings": typeof SettingsRoute;
   "/simulator": typeof SimulatorRoute;
   "/cases/$id": typeof CasesIdRoute;
-  "/library/$id": typeof LibraryIdRoute;
+  "/library_/$id": typeof LibraryIdRoute;
   "/cases/": typeof CasesIndexRoute;
 }
 export interface FileRouteTypes {
@@ -251,7 +251,7 @@ export interface FileRouteTypes {
     | "/settings"
     | "/simulator"
     | "/cases/$id"
-    | "/library/$id"
+    | "/library_/$id"
     | "/cases/";
   fileRoutesById: FileRoutesById;
 }
@@ -263,7 +263,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
   HistoryRoute: typeof HistoryRoute;
-  LibraryRoute: typeof LibraryRouteWithChildren;
+  LibraryRoute: typeof LibraryRoute;
   LoginRoute: typeof LoginRoute;
   OutbreaksRoute: typeof OutbreaksRoute;
   PatientsRoute: typeof PatientsRoute;
@@ -273,6 +273,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute;
   SimulatorRoute: typeof SimulatorRoute;
   CasesIdRoute: typeof CasesIdRoute;
+  LibraryIdRoute: typeof LibraryIdRoute;
   CasesIndexRoute: typeof CasesIndexRoute;
 }
 
@@ -397,12 +398,12 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof CasesIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/library/$id": {
-      id: "/library/$id";
-      path: "/$id";
+    "/library_/$id": {
+      id: "/library_/$id";
+      path: "/library/$id";
       fullPath: "/library/$id";
       preLoaderRoute: typeof LibraryIdRouteImport;
-      parentRoute: typeof LibraryRoute;
+      parentRoute: typeof rootRouteImport;
     };
     "/cases/$id": {
       id: "/cases/$id";
@@ -414,17 +415,6 @@ declare module "@tanstack/react-router" {
   }
 }
 
-interface LibraryRouteChildren {
-  LibraryIdRoute: typeof LibraryIdRoute;
-}
-
-const LibraryRouteChildren: LibraryRouteChildren = {
-  LibraryIdRoute: LibraryIdRoute,
-};
-
-const LibraryRouteWithChildren =
-  LibraryRoute._addFileChildren(LibraryRouteChildren);
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
@@ -433,7 +423,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HistoryRoute: HistoryRoute,
-  LibraryRoute: LibraryRouteWithChildren,
+  LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   OutbreaksRoute: OutbreaksRoute,
   PatientsRoute: PatientsRoute,
@@ -443,6 +433,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   CasesIdRoute: CasesIdRoute,
+  LibraryIdRoute: LibraryIdRoute,
   CasesIndexRoute: CasesIndexRoute,
 };
 export const routeTree = rootRouteImport
