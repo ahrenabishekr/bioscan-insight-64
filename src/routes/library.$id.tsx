@@ -35,7 +35,7 @@ function Page() {
       const res = await apiFetch(`https://chemosense-backend.onrender.com/api/pathogens/${id}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify({ question: q, pathogen: p }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const data = await res.json();

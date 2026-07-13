@@ -49,7 +49,7 @@ function Page() {
     apiFetch("https://chemosense-backend.onrender.com/api/compare", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pathogenAId: a, pathogenBId: b }),
+      body: JSON.stringify({ pathogenA: A, pathogenB: B }),
     })
       .then(async (res) => {
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
