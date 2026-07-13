@@ -32,11 +32,13 @@ function Page() {
     if (!q || asking) return;
     setAsking(true);
     try {
-      const data: any = await apiFetch(`/api/pathogens/${id}/ask`, {
+      const res = await apiFetch(`https://chemosense-backend.onrender.com/api/pathogens/${id}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q }),
       });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = await res.json();
       setHistory((h) => [...h, { question: q, answer: data.answer, source: data.source }]);
       setQuestion("");
     } catch {

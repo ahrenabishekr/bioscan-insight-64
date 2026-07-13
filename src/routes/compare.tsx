@@ -46,12 +46,14 @@ function Page() {
     let cancelled = false;
     setLoadingAI(true);
     setAiComparison(null);
-    apiFetch("/api/compare", {
+    apiFetch("https://chemosense-backend.onrender.com/api/compare", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pathogenAId: a, pathogenBId: b }),
     })
-      .then((data: any) => {
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        const data = await res.json();
         if (cancelled) return;
         cacheRef.current[key] = { comparison: data.comparison, source: data.source };
         setAiComparison(data.comparison);
