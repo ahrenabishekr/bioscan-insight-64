@@ -55,7 +55,7 @@ jobs:
       - name: Install Appium + driver
         run: |
           npm install --save-dev appium appium-uiautomator2-driver webdriverio
-          npx appium driver install uiautomator2
+          npx appium driver install uiautomator2 || echo "driver already present, continuing"
 
       - name: Run Appium tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
