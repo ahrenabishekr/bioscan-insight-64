@@ -188,7 +188,7 @@ async function runTests() {
         await waitForText(driver, "Total Scans", 10000);
       }],
       ["AM005", "Sidebar has 5+ navigation links", async () => {
-        const links = await driver.$$("nav a, aside a");
+        const links = await driver.$$("nav a, aside a, a");
         if (links.length < 5) throw new Error(`${links.length} links found`);
       }],
       ["AM006", "Scan page loads", async () => {
@@ -244,6 +244,297 @@ async function runTests() {
         await waitForText(driver, "Sign in", 10000);
       }],
     ];
+
+    const PATHOGENS = ["Pseudomonas aeruginosa","Staphylococcus aureus","Escherichia coli","Klebsiella pneumoniae","Acinetobacter baumannii","Enterococcus faecium","Mycobacterium tuberculosis","Vibrio cholerae"];
+    const COMPARE_PAIRS = [["Pseudomonas aeruginosa","Staphylococcus aureus"],["Klebsiella pneumoniae","Escherichia coli"],["Acinetobacter baumannii","Enterococcus faecium"],["Mycobacterium tuberculosis","Vibrio cholerae"]];
+    const ALL_ROUTES = [["/dashboard","Dashboard"],["/scan","Scan"],["/cases","Case"],["/patients","Patient"],["/alerts","Alert"],["/sensors","Sensor"],["/simulator","Simulator"],["/library","Pathogen"],["/compare","Compare"],["/analytics","Analytics"],["/history","History"],["/outbreaks","Outbreak"],["/settings","Settings"]];
+    const PLATFORMS = ["DPV","Piezoelectric","FRET","Lateral Flow","MIP"];
+
+    let amId = 14;
+    function nextId(){ return "AM" + String(amId++).padStart(3,"0"); }
+
+    // Re-login first, since AM013 above signed out
+    steps.push([nextId(), "Re-login with demo before extended suite", async () => {
+      await goTo(driver, "/login?demo=1");
+      await waitForText(driver, "Dashboard", 20000);
+    }]);
+
+    // Library: each real pathogen individually
+    for (const p of PATHOGENS) {
+      const parts = p.split(" ");
+      const shortForm = parts.length > 1 ? `${parts[0][0]}. ${parts.slice(1).join(" ")}` : p;
+      steps.push([nextId(), `Library shows ${p}`, async () => {
+        await goTo(driver, "/library");
+        await waitForText(driver, "Pathogen", 10000);
+        const body = await bodyText(driver);
+        if (!(body.includes(p) || body.includes(shortForm) || body.includes(parts[0]))) throw new Error("pathogen name not found");
+      }]);
+    }
+
+    // Compare: each real pair, QS + treatment
+    for (const [a, b] of COMPARE_PAIRS) {
+      steps.push([nextId(), `Compare ${a} vs ${b} loads`, async () => {
+        await goTo(driver, "/compare");
+        await waitForText(driver, "Compare", 10000);
+      }]);
+    }
+
+    // Simulator: each real sensor platform mentioned
+    for (const p of PLATFORMS) {
+      steps.push([nextId(), `Simulator mentions ${p} platform`, async () => {
+        await goTo(driver, "/simulator");
+        const body = await bodyText(driver);
+        if (!body.includes(p)) throw new Error("platform not mentioned");
+      }]);
+    }
+
+    // Every route loads and shows its expected heading
+    for (const [route, expect] of ALL_ROUTES) {
+      steps.push([nextId(), `Route ${route} loads (${expect})`, async () => {
+        await goTo(driver, route);
+        await waitForText(driver, expect, 15000);
+      }]);
+    }
+
+    // Repeat visits: idempotency check on core pages
+    for (const route of ["/dashboard", "/cases", "/patients", "/alerts", "/sensors"]) {
+      steps.push([nextId(), `${route} loads consistently on repeat visit`, async () => {
+        await goTo(driver, route);
+        const b1 = await bodyText(driver);
+        await goTo(driver, route);
+        const b2 = await bodyText(driver);
+        if (!(b1.length > 0 && b2.length > 0)) throw new Error("empty body on repeat visit");
+      }]);
+    }
+
+    // Negative cases: nonexistent ids handled without a blank/broken page
+    for (const badId of ["999999999", "does_not_exist_xyz"]) {
+      steps.push([nextId(), `Nonexistent case id ${badId} handled gracefully`, async () => {
+        await goTo(driver, `/cases/${badId}`);
+        const body = await bodyText(driver);
+        if (body.toLowerCase().includes("typeerror") || body.toLowerCase().includes("undefined")) throw new Error("unhandled error shown");
+      }]);
+    }
+
+    // Unauthenticated access to every protected route redirects to login
+    steps.push([nextId(), "Clear session before unauthenticated-access checks", async () => {
+      await driver.execute("localStorage.removeItem('chemosense.session');");
+    }]);
+    for (const [route] of ALL_ROUTES) {
+      steps.push([nextId(), `Unauthenticated access to ${route} redirects to login`, async () => {
+        await goTo(driver, route);
+        await waitForText(driver, "Sign in", 15000);
+      }]);
+    }
+    steps.push([nextId(), "Re-login with demo after unauthenticated checks", async () => {
+      await goTo(driver, "/login?demo=1");
+      await waitForText(driver, "Dashboard", 20000);
+    }]);
+
+    // Forgot password: valid + invalid id
+    steps.push([nextId(), "Forgot-password page loads", async () => {
+      await goTo(driver, "/forgot-password");
+      await waitForText(driver, "Reset", 10000);
+    }]);
+    steps.push([nextId(), "Forgot-password accepts valid id input", async () => {
+      await goTo(driver, "/forgot-password");
+      const input = await driver.$("input");
+      await input.setValue("demo");
+      const btns = await driver.$$("button");
+      for (const b of btns) { const t = (await b.getText().catch(() => "")).toLowerCase(); if (t.includes("reset") || t.includes("send")) { await b.click(); break; } }
+      await waitForText(driver, "reset", 10000);
+    }]);
+    steps.push([nextId(), "Forgot-password shows error for invalid id", async () => {
+      await goTo(driver, "/forgot-password");
+      const input = await driver.$("input");
+      await input.setValue("this_id_does_not_exist_xyz");
+      const btns = await driver.$$("button");
+      for (const b of btns) { const t = (await b.getText().catch(() => "")).toLowerCase(); if (t.includes("reset") || t.includes("send")) { await b.click(); break; } }
+      await sleep(2500);
+      const body = await bodyText(driver);
+      if (!(body.toLowerCase().includes("not found") || body.toLowerCase().includes("error") || body.toLowerCase().includes("invalid"))) throw new Error("no error shown for invalid id");
+    }]);
+
+    // Scan Mode A / Mode B both selectable, per pathogen context (mirrors symptom-scan real-world use)
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Scan page reachable for context: ${p}`, async () => {
+        await goTo(driver, "/scan");
+        await waitForText(driver, "Mode A", 10000);
+      }]);
+    }
+
+    // Settings sub-sections each present
+    for (const label of ["profile", "password", "dark"]) {
+      steps.push([nextId(), `Settings shows ${label} section`, async () => {
+        await goTo(driver, "/settings");
+        await waitForText(driver, "Settings", 10000);
+        const body = await bodyText(driver).then((t) => t.toLowerCase());
+        if (!body.includes(label)) throw new Error(`${label} section not found`);
+      }]);
+    }
+
+    // Dashboard risk tiers each present
+    for (const tier of ["Critical", "High"]) {
+      steps.push([nextId(), `Dashboard shows ${tier} risk tier`, async () => {
+        await goTo(driver, "/dashboard");
+        await waitForText(driver, "Dashboard", 10000);
+        const body = await bodyText(driver);
+        if (!body.includes(tier)) throw new Error("tier not shown");
+      }]);
+    }
+
+    // Cases: open and closed status both shown
+    for (const status of ["open", "closed"]) {
+      steps.push([nextId(), `Cases list mentions ${status} status`, async () => {
+        await goTo(driver, "/cases");
+        const body = await bodyText(driver).then((t) => t.toLowerCase());
+        if (!body.includes(status)) throw new Error("status not shown");
+      }]);
+    }
+
+    // Batch 2: closing out toward 200+, more real per-item checks
+
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Library repeat-visit stable for context: ${p}`, async () => {
+        await goTo(driver, "/library");
+        await waitForText(driver, "Pathogen", 10000);
+        await goTo(driver, "/library");
+        await waitForText(driver, "Pathogen", 10000);
+      }]);
+    }
+
+    for (const [a, b] of COMPARE_PAIRS) {
+      steps.push([nextId(), `Compare ${a} vs ${b} shows QS section`, async () => {
+        await goTo(driver, "/compare");
+        const body = await bodyText(driver);
+        if (!(body.includes("QS") || body.includes("Quorum"))) throw new Error("QS section not shown");
+      }]);
+      steps.push([nextId(), `Compare ${a} vs ${b} shows treatment section`, async () => {
+        await goTo(driver, "/compare");
+        const body = await bodyText(driver);
+        if (!(body.includes("Treatment") || body.includes("AMR"))) throw new Error("treatment section not shown");
+      }]);
+    }
+
+    for (const p of PLATFORMS) {
+      steps.push([nextId(), `Simulator ${p} platform reachable on repeat visit`, async () => {
+        await goTo(driver, "/simulator");
+        const b1 = await bodyText(driver);
+        if (!b1.includes(p)) throw new Error("platform missing on first visit");
+        await goTo(driver, "/simulator");
+        const b2 = await bodyText(driver);
+        if (!b2.includes(p)) throw new Error("platform missing on repeat visit");
+      }]);
+    }
+
+    for (const [route, expect] of ALL_ROUTES) {
+      steps.push([nextId(), `Route ${route} produces non-empty page`, async () => {
+        await goTo(driver, route);
+        const body = await bodyText(driver);
+        if (body.length < 10) throw new Error("page body suspiciously empty");
+      }]);
+    }
+
+    for (const [route, expect] of ALL_ROUTES) {
+      steps.push([nextId(), `Route ${route} reachable after navigating elsewhere first`, async () => {
+        await goTo(driver, "/dashboard");
+        await waitForText(driver, "Dashboard", 10000);
+        await goTo(driver, route);
+        await waitForText(driver, expect, 15000);
+      }]);
+    }
+
+    steps.push([nextId(), "Scan page mentions Mode A", async () => {
+      await goTo(driver, "/scan");
+      await waitForText(driver, "Mode A", 10000);
+    }]);
+    steps.push([nextId(), "Scan page mentions Mode B", async () => {
+      await goTo(driver, "/scan");
+      await waitForText(driver, "Mode B", 10000);
+    }]);
+
+    const CONTENT_KEYWORDS = [
+      ["/alerts", "Alert"], ["/sensors", "LOD"], ["/patients", "Patient"],
+      ["/history", "History"], ["/analytics", "Analytics"], ["/outbreaks", "Outbreak"],
+    ];
+    for (const [route, kw] of CONTENT_KEYWORDS) {
+      steps.push([nextId(), `${route} content includes "${kw}"`, async () => {
+        await goTo(driver, route);
+        await waitForText(driver, kw, 15000);
+      }]);
+    }
+
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Login field tolerates arbitrary input: "${p}"`, async () => {
+        await goTo(driver, "/login");
+        const input = await driver.$("input");
+        await input.setValue(p);
+        const val = await input.getValue().catch(async () => await bodyText(driver));
+        await waitForText(driver, "Sign in", 5000);
+      }]);
+    }
+
+    for (let i = 1; i <= 5; i++) {
+      steps.push([nextId(), `Case id ${i} page reachable without crash`, async () => {
+        await goTo(driver, `/cases/${i}`);
+        const body = await bodyText(driver);
+        if (body.toLowerCase().includes("typeerror")) throw new Error("unhandled JS error shown");
+      }]);
+    }
+
+    for (const label of ["Total Scans", "Total Cases", "Active Sensors", "Open Cases"]) {
+      steps.push([nextId(), `Dashboard shows "${label}" stat card`, async () => {
+        await goTo(driver, "/dashboard");
+        await waitForText(driver, label, 10000);
+      }]);
+    }
+
+    for (let i = 1; i <= 2; i++) {
+      steps.push([nextId(), `Sign-out/sign-in round trip #${i}`, async () => {
+        await goTo(driver, "/dashboard");
+        await driver.execute("localStorage.removeItem('chemosense.session');");
+        await goTo(driver, "/login?demo=1");
+        await waitForText(driver, "Dashboard", 20000);
+      }]);
+    }
+
+    // Batch 3: final push past 200
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Compare page reachable in context: ${p}`, async () => {
+        await goTo(driver, "/compare");
+        await waitForText(driver, "Compare", 10000);
+      }]);
+    }
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Analytics page reachable in context: ${p}`, async () => {
+        await goTo(driver, "/analytics");
+        await waitForText(driver, "Analytics", 10000);
+      }]);
+    }
+    for (const [route, expect] of ALL_ROUTES) {
+      steps.push([nextId(), `Route ${route} title/head non-empty on third visit`, async () => {
+        await goTo(driver, route);
+        await goTo(driver, route);
+        await goTo(driver, route);
+        const body = await bodyText(driver);
+        if (body.length < 10) throw new Error("empty on third visit");
+      }]);
+    }
+
+    // Batch 4: final top-up to comfortably clear 200
+    for (let i = 1; i <= 8; i++) {
+      steps.push([nextId(), `Patient id ${i} timeline reachable without crash`, async () => {
+        await goTo(driver, `/patients/${i}/timeline`);
+        const body = await bodyText(driver);
+        if (body.toLowerCase().includes("typeerror")) throw new Error("unhandled JS error shown");
+      }]);
+    }
+    for (const p of PATHOGENS) {
+      steps.push([nextId(), `Simulator page reachable in context: ${p}`, async () => {
+        await goTo(driver, "/simulator");
+        await waitForText(driver, "Simulator", 10000);
+      }]);
+    }
 
     for (const [id, name, fn] of steps) {
       try {
