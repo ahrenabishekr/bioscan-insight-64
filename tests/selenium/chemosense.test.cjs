@@ -61,6 +61,8 @@ async function saveReport(){
   sr.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1E293B"}};
   const rp=path.join(__dirname,"../reports/selenium-report.xlsx");
   await wb.xlsx.writeFile(rp);
+  const jp=path.join(__dirname,"../reports/selenium-report.json");
+  require("fs").writeFileSync(jp, JSON.stringify({ results, pass, fail, skip, total: results.length }, null, 2));
   console.log("\n📊 Report: "+rp);
   console.log(`✅ PASS:${pass} | ❌ FAIL:${fail} | ⏭ SKIP:${skip} | Total:${results.length}`);
 }

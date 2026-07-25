@@ -17,10 +17,6 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    outputs:
-      pass: ${{ steps.summary.outputs.pass }}
-      fail: ${{ steps.summary.outputs.fail }}
-      total: ${{ steps.summary.outputs.total }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,9 +86,6 @@ jobs:
           else
             PASS=0; FAIL=0; TOTAL=0
           fi
-          echo "pass=$PASS" >> "$GITHUB_OUTPUT"
-          echo "fail=$FAIL" >> "$GITHUB_OUTPUT"
-          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
           {
             echo "# Android Appium Test Summary"
             echo ""
@@ -101,14 +94,6 @@ jobs:
             echo "Total Tests: $TOTAL"
             echo "Passed: $PASS"
             echo "Failed: $FAIL"
-            if [ "$TOTAL" != "0" ]; then
-              PCT=$(awk "BEGIN {printf \"%.1f\", ($PASS/$TOTAL)*100}")
-            else
-              PCT="0.0"
-            fi
-            echo "Pass Rate: ${PCT}%"
-            echo ""
-            echo "Report URL: https://${{ github.repository_owner }}.github.io/$(basename ${{ github.repository }})/reports/latest/execution-report.html"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload test artifacts
@@ -118,31 +103,6 @@ jobs:
           name: appium-results-${{ github.run_number }}
           path: "Test Results/"
           if-no-files-found: warn
-
-      - name: Prepare Pages content
-        if: always()
-        run: |
-          mkdir -p pages-out/reports/latest
-          mkdir -p "pages-out/reports/history/build-${{ github.run_number }}"
-          if [ -d "Test Results/HTML" ]; then
-            cp -r "Test Results/HTML/." pages-out/reports/latest/
-            cp -r "Test Results/HTML/." "pages-out/reports/history/build-${{ github.run_number }}/"
-          fi
-          if [ -d "Test Results/Summary" ]; then
-            cp -r "Test Results/Summary/." pages-out/reports/latest/
-          fi
-          if [ -d "Test Results/Screenshots" ]; then
-            cp -r "Test Results/Screenshots" pages-out/reports/latest/
-          fi
-          if [ -d "Test Results/Logs" ]; then
-            cp -r "Test Results/Logs" pages-out/reports/latest/
-          fi
-
-      - name: Upload Pages artifact
-        if: always()
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pages-out
 
   selenium-web-tests:
     runs-on: ubuntu-latest
@@ -170,7 +130,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: selenium-report-${{ github.run_number }}
-          path: "tests/reports/selenium-report.xlsx"
+          path: "tests/reports/"
           if-no-files-found: warn
 
   dast-security-scan:
@@ -230,4 +190,80 @@ jobs:
         uses: grafana/k6-action@v0.3.1
         with:
           filename: tests/load/load-test.js
+          flags: --summary-export=k6-summary.json
         continue-on-error: true
+
+      - name: Upload k6 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-report-${{ github.run_number }}
+          path: "k6-summary.json"
+          if-no-files-found: warn
+
+  combine-and-deploy:
+    needs: [build-and-test, selenium-web-tests, dast-security-scan, k6-load-test]
+    if: always()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+
+      - name: Download Appium results
+        uses: actions/download-artifact@v4
+        with:
+          name: appium-results-${{ github.run_number }}
+          path: artifacts/appium
+        continue-on-error: true
+
+      - name: Download Selenium results
+        uses: actions/download-artifact@v4
+        with:
+          name: selenium-report-${{ github.run_number }}
+          path: artifacts/selenium
+        continue-on-error: true
+
+      - name: Download DAST results
+        uses: actions/download-artifact@v4
+        with:
+          name: dast-report-${{ github.run_number }}
+          path: artifacts/dast
+        continue-on-error: true
+
+      - name: Download k6 results
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-report-${{ github.run_number }}
+          path: artifacts/k6
+        continue-on-error: true
+
+      - name: Build combined report
+        run: |
+          mkdir -p pages-out/reports/latest "pages-out/reports/history/build-${{ github.run_number }}"
+          node tests/merge-report.cjs \
+            artifacts/selenium/selenium-report.json \
+            artifacts/appium/Summary/summary.md \
+            artifacts/dast/report.json \
+            artifacts/k6/k6-summary.json \
+            pages-out/reports/latest/index.html
+          if [ -d "artifacts/appium/HTML" ]; then
+            cp -r artifacts/appium/HTML/. pages-out/reports/latest/appium/ 2>/dev/null || true
+          fi
+          cp -r pages-out/reports/latest/. "pages-out/reports/history/build-${{ github.run_number }}/"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
