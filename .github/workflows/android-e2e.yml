@@ -137,10 +137,14 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (with backend submodule)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout backend (not a real git submodule, clone separately)
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          repository: ahrenabishekr/chemosense-backend
+          path: bioscan-backend
 
       - name: Setup Node
         uses: actions/setup-node@v4
