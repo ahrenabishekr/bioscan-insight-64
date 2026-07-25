@@ -440,10 +440,10 @@ async function run(){
         }
         const roleBtns=await driver.findElements(By.xpath(`//*[contains(text(),"${role.charAt(0).toUpperCase()+role.slice(1)}")]`));
         if(roleBtns.length) await roleBtns[0].click();
-        await sleep(300);
+        await sleep(800);
         const submitBtns=await driver.findElements(By.css("button"));
         for(const b of submitBtns){const t=(await b.getText().catch(()=>"")).toLowerCase();if(t.includes("create account")){await b.click();break;}}
-        await sleep(4500);
+        await sleep(7000);
         const url=await driver.getCurrentUrl();
         if(url.includes("/dashboard")) record(id,`Register as ${role} reaches dashboard`,"PASS");
         else record(id,`Register as ${role} reaches dashboard`,"FAIL",url);
@@ -533,7 +533,7 @@ async function run(){
       await sleep(500);
       const addBtns=await driver.findElements(By.xpath("//*[contains(text(),'Add sensor') or contains(text(),'Add Sensor')]"));
       if(addBtns.length){
-        await addBtns[0].click();await sleep(800);
+        await addBtns[0].click();await sleep(1500);
         const submitBtns=await driver.findElements(By.css("button"));
         let clicked=false;
         for(const b of submitBtns){const t=(await b.getText().catch(()=>"")).toLowerCase();if(t.includes("add")||t.includes("save")||t.includes("create")){await b.click();clicked=true;break;}}
