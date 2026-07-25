@@ -54,6 +54,7 @@ jobs:
           npx appium driver install uiautomator2 || echo "driver already present, continuing"
 
       - name: Run Appium tests on emulator
+        timeout-minutes: 40
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
