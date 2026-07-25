@@ -115,7 +115,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ github.run_number }}
+          name: appium-results-${{ github.run_number }}
           path: "Test Results/"
           if-no-files-found: warn
 
@@ -144,14 +144,90 @@ jobs:
         with:
           path: pages-out
 
-  deploy-pages:
-    needs: build-and-test
-    if: always()
+  selenium-web-tests:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Run Selenium tests against live site
+        run: npm run test:selenium
+        continue-on-error: true
+
+      - name: Upload Selenium report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-report-${{ github.run_number }}
+          path: "tests/reports/selenium-report.xlsx"
+          if-no-files-found: warn
+
+  dast-security-scan:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with backend submodule)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+
+      - name: Generate fresh JWTs and build input.json
+        env:
+          DAST_DOCTOR_PASSWORD: ${{ secrets.DAST_DOCTOR_PASSWORD }}
+        run: |
+          BASE="https://chemosense-backend.onrender.com"
+          DEMO_TOKEN=$(curl -s -X POST "$BASE/api/login" -H "Content-Type: application/json" -d '{"student_id":"demo","password":"demo123"}' | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).token")
+          DOCTOR_LOGIN=$(curl -s -X POST "$BASE/api/login" -H "Content-Type: application/json" -d "{\"student_id\":\"dast_doctor\",\"password\":\"$DAST_DOCTOR_PASSWORD\"}")
+          DOCTOR_TOKEN=$(echo "$DOCTOR_LOGIN" | node -pe "try{JSON.parse(require('fs').readFileSync(0,'utf8')).token || ''}catch(e){''}")
+          if [ -z "$DOCTOR_TOKEN" ]; then
+            curl -s -X POST "$BASE/api/register" -H "Content-Type: application/json" -d "{\"student_id\":\"dast_doctor\",\"email\":\"dast_doctor@chemosense.app\",\"password\":\"$DAST_DOCTOR_PASSWORD\",\"name\":\"DAST Test Doctor\",\"role\":\"doctor\"}" > /dev/null
+            DOCTOR_TOKEN=$(curl -s -X POST "$BASE/api/login" -H "Content-Type: application/json" -d "{\"student_id\":\"dast_doctor\",\"password\":\"$DAST_DOCTOR_PASSWORD\"}" | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).token")
+          fi
+          cat > bioscan-backend/automated_test/input.json << JSON
+          {
+            "baseUrl": "$BASE",
+            "technician": "$DEMO_TOKEN",
+            "doctor": "$DOCTOR_TOKEN"
+          }
+          JSON
+
+      - name: Run DAST suite
+        run: node bioscan-backend/automated_test/dast-runner.cjs
+        continue-on-error: true
+
+      - name: Upload DAST report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-report-${{ github.run_number }}
+          path: "bioscan-backend/automated_test/report.json"
+          if-no-files-found: warn
+
+  k6-load-test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run k6 load test against live backend
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: tests/load/load-test.js
+        continue-on-error: true
