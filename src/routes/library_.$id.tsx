@@ -20,7 +20,7 @@ export const Route = createFileRoute("/library_/$id")({
 type QAEntry = { question: string; answer: string; source: "ai" | "fallback" };
 
 function Page() {
-  const { id } = useParams({ from: "/library/$id" });
+  const { id } = useParams({ from: "/library_/$id" });
   const p = findPathogen(id)!;
 
   const [question, setQuestion] = useState("");
