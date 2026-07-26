@@ -19,6 +19,7 @@ function Page() {
   const [mode, setMode] = useState<"symptom" | "biomarker">("symptom");
   const [text, setText] = useState(q0 ?? "");
   const [bio, setBio] = useState<string>("");
+  const [bioReading, setBioReading] = useState<string>("");
   const [biomarkers, setBiomarkers] = useState<string[]>([]);
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
@@ -58,13 +59,13 @@ function Page() {
         res = await apiFetch(`${API_URL}/scan/biomarker`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ biomarker: bio }),
+          body: JSON.stringify({ biomarker: bio, reading: bioReading || undefined }),
         });
         const data = await res.json();
         setResults(Array.isArray(data) ? data : (data.results || []));
-        setAiPowered(false);
-        setAiSource("");
-        setScanNote("");
+        setAiPowered(data.aiPowered ?? false);
+        setAiSource(data.source || "");
+        setScanNote(data.note || "");
       }
     } catch {
       setError("Scan failed. Check your connection.");
@@ -133,6 +134,13 @@ function Page() {
                 className="mt-1 w-full h-10 px-3 text-sm border border-input rounded-md bg-background">
                 {biomarkers.map((n) => <option key={n} value={n}>{n}</option>)}
               </select>
+              <label className="text-xs font-medium block mt-3">Concentration reading (optional)</label>
+              <input value={bioReading} onChange={(e) => setBioReading(e.target.value)} type="number" step="any"
+                placeholder="e.g. 0.25 — leave blank to just look up by name"
+                className="mt-1 w-full h-10 px-3 text-sm border border-input rounded-md bg-background" />
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Enter a concentration to get a real statistical confidence score. Without it, you'll just see which pathogens use this biomarker.
+              </p>
             </>
           )}
 
@@ -186,7 +194,17 @@ function Page() {
                   🧠 Answered by Local Trained Model (offline, no API)
                 </span>
               )}
-              {!aiPowered && results.length > 0 && (
+              {aiSource === "biomarker-model" && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                  📊 Statistical Model (own biomarker dataset)
+                </span>
+              )}
+              {aiSource === "name-lookup" && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">
+                  🔍 Name lookup only (no confidence — enter a reading)
+                </span>
+              )}
+              {!aiPowered && aiSource !== "name-lookup" && results.length > 0 && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
                   🔑 Answered by Keyword Matcher
                 </span>
