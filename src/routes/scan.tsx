@@ -23,6 +23,7 @@ function Page() {
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [aiPowered, setAiPowered] = useState(false);
+  const [aiSource, setAiSource] = useState<string>("");
   const [scanNote, setScanNote] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -50,6 +51,7 @@ function Page() {
         const resultList = Array.isArray(data) ? data : (data.results || []);
         setResults(resultList);
         setAiPowered(data.aiPowered ?? false);
+        setAiSource(data.source || "");
         setScanNote(data.note || "");
       } else {
         res = await apiFetch(`${API_URL}/scan/biomarker`, {
@@ -60,6 +62,7 @@ function Page() {
         const data = await res.json();
         setResults(Array.isArray(data) ? data : (data.results || []));
         setAiPowered(false);
+        setAiSource("");
         setScanNote("");
       }
     } catch {
@@ -152,14 +155,19 @@ function Page() {
               <h2 className="text-sm font-semibold flex items-center gap-2">
                 <FlaskConical className="size-4 text-primary" /> Results ({results.length} pathogen{results.length > 1 ? "s" : ""} matched)
               </h2>
-              {aiPowered && (
+              {aiSource === "gemini" && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
-                  ✦ AI-powered
+                  ✦ Answered by Gemini AI
+                </span>
+              )}
+              {aiSource === "local-ml" && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 font-medium">
+                  🧠 Answered by Local Trained Model (offline, no API)
                 </span>
               )}
               {!aiPowered && results.length > 0 && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
-                  Keyword matcher
+                  🔑 Answered by Keyword Matcher
                 </span>
               )}
             </div>
