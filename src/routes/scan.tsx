@@ -24,6 +24,7 @@ function Page() {
   const [results, setResults] = useState<any[]>([]);
   const [aiPowered, setAiPowered] = useState(false);
   const [aiSource, setAiSource] = useState<string>("");
+  const [forceLocal, setForceLocal] = useState(false);
   const [scanNote, setScanNote] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -45,7 +46,7 @@ function Page() {
         res = await apiFetch(`${API_URL}/scan/symptoms`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, forceLocal }),
         });
         const data = await res.json();
         const resultList = Array.isArray(data) ? data : (data.results || []);
@@ -136,6 +137,26 @@ function Page() {
           )}
 
           {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+
+          {mode === "symptom" && (
+            <div className="mt-4 flex items-center justify-between p-3 rounded-md border border-border bg-muted/20">
+              <div>
+                <div className="text-xs font-medium">Prediction engine</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {forceLocal ? "Local trained model (offline, no API call)" : "Gemini AI (falls back to local model automatically if unavailable)"}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForceLocal(!forceLocal)}
+                className={`relative h-7 w-24 rounded-full transition-colors shrink-0 ${forceLocal ? "bg-violet-500" : "bg-emerald-500"}`}
+              >
+                <span className={`absolute top-0.5 h-6 w-11 rounded-full bg-white shadow-sm flex items-center justify-center text-[9px] font-bold transition-all ${forceLocal ? "left-[46px] text-violet-600" : "left-0.5 text-emerald-600"}`}>
+                  {forceLocal ? "LOCAL" : "GEMINI"}
+                </span>
+              </button>
+            </div>
+          )}
 
           <button onClick={runScan} disabled={scanning || (mode === "symptom" && !text.trim())}
             className="mt-4 h-10 px-4 rounded-md gradient-primary text-primary-foreground text-sm font-medium inline-flex items-center gap-2 disabled:opacity-50 shadow-elegant">
